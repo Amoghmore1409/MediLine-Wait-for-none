@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/doctor_dash_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface">
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:layout_marginBottom="64dp" android:scrollbars="none">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingStart="24dp"
+            android:paddingTop="24dp" android:paddingEnd="24dp" android:paddingBottom="24dp">
+
+            <!-- Top bar -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+                android:gravity="center_vertical" android:orientation="horizontal">
+                <FrameLayout android:layout_width="32dp" android:layout_height="32dp"
+                    android:background="@drawable/bg_primary_gradient">
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp"
+                        android:layout_gravity="center" android:src="@drawable/ic_medical_services"
+                        android:contentDescription="@string/brand_name" />
+                </FrameLayout>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp" android:layout_weight="1"
+                    android:fontFamily="sans-serif-black" android:text="@string/brand_name"
+                    android:textColor="@color/primary" android:textSize="18sp"
+                    android:textStyle="bold|italic" />
+                <FrameLayout android:layout_width="40dp" android:layout_height="40dp"
+                    android:background="@drawable/bg_profile_circle">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                        android:layout_gravity="center" android:src="@drawable/ic_person_outline"
+                        android:contentDescription="@string/nav_profile" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Dashboard Header -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:fontFamily="sans-serif-black"
+                android:text="@string/doctor_dashboard_title" android:textColor="@color/on_surface"
+                android:textSize="28sp" />
+            <TextView android:id="@+id/doctor_date" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                android:textColor="@color/secondary" android:textSize="14sp" />
+
+            <!-- Manage Queue CTA -->
+            <FrameLayout android:id="@+id/doctor_manage_queue_btn" android:layout_width="match_parent"
+                android:layout_height="56dp" android:layout_marginTop="20dp"
+                android:background="@drawable/bg_cta_button" android:clickable="true"
+                android:elevation="6dp" android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="@string/doctor_manage_queue"
+                    android:textColor="@color/white" android:textSize="16sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <!-- Stats Cards -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="24dp" android:baselineAligned="false"
+                android:orientation="horizontal">
+                <!-- Current Queue -->
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp" android:layout_weight="1"
+                    android:background="@drawable/bg_card_accent_left" android:elevation="2dp"
+                    android:orientation="vertical" android:padding="20dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium" android:letterSpacing="0.08"
+                        android:text="@string/doctor_current_queue" android:textAllCaps="true"
+                        android:textColor="@color/secondary" android:textSize="10sp"
+                        android:textStyle="bold" />
+                    <TextView android:id="@+id/doctor_queue_count" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif-black" android:text="0"
+                        android:textColor="@color/primary" android:textSize="40sp" />
+                    <ProgressBar android:id="@+id/doctor_queue_progress"
+                        android:layout_width="match_parent" android:layout_height="10dp"
+                        android:layout_marginTop="12dp" android:max="100" android:progress="33"
+                        android:progressDrawable="@drawable/bg_progress_indicator"
+                        style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+                </LinearLayout>
+                <!-- Avg Wait + Patients -->
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp" android:layout_weight="1"
+                    android:orientation="vertical">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp" android:background="@drawable/bg_card_surface_low"
+                        android:orientation="vertical" android:padding="20dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium" android:letterSpacing="0.08"
+                            android:text="@string/doctor_avg_wait" android:textAllCaps="true"
+                            android:textColor="@color/secondary" android:textSize="10sp"
+                            android:textStyle="bold" />
+                        <TextView android:id="@+id/doctor_avg_wait" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                            android:text="-- min" android:textColor="@color/on_surface"
+                            android:textSize="24sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp" android:background="@drawable/bg_card_surface_low"
+                        android:orientation="vertical" android:padding="20dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium" android:letterSpacing="0.08"
+                            android:text="@string/doctor_patients_seen" android:textAllCaps="true"
+                            android:textColor="@color/secondary" android:textSize="10sp"
+                            android:textStyle="bold" />
+                        <TextView android:id="@+id/doctor_patients_seen" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                            android:text="0" android:textColor="@color/on_surface"
+                            android:textSize="24sp" android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Upcoming Patients -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="28dp" android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:fontFamily="sans-serif-medium"
+                    android:text="@string/doctor_upcoming" android:textColor="@color/on_surface"
+                    android:textSize="20sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/doctor_view_schedule" android:textColor="@color/primary"
+                    android:textSize="13sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/doctor_patient_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Nav -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="64dp"
+        android:layout_gravity="bottom" android:background="@color/surface_container_lowest"
+        android:elevation="8dp" android:gravity="center_vertical"
+        android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="8dp">
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent"
+            android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                android:src="@drawable/ic_medical_services_white"
+                android:contentDescription="@string/nav_dashboard" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/nav_dashboard" android:textColor="@color/primary"
+                android:textSize="11sp" android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/doc_nav_queue" android:layout_width="0dp"
+            android:layout_height="match_parent" android:layout_weight="1" android:gravity="center"
+            android:orientation="vertical" android:clickable="true" android:focusable="true">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                android:src="@drawable/ic_update"
+                android:contentDescription="@string/nav_queue" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/nav_queue" android:textColor="@color/outline"
+                android:textSize="11sp" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/doc_nav_clinic" android:layout_width="0dp"
+            android:layout_height="match_parent" android:layout_weight="1" android:gravity="center"
+            android:orientation="vertical" android:clickable="true" android:focusable="true">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                android:src="@drawable/ic_medical_services_white"
+                android:contentDescription="@string/nav_clinic" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/nav_clinic" android:textColor="@color/outline"
+                android:textSize="11sp" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent"
+            android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                android:src="@drawable/ic_person_outline"
+                android:contentDescription="@string/nav_profile" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/nav_profile" android:textColor="@color/outline"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

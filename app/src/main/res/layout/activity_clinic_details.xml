@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/clinic_details_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:scrollbars="none">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingBottom="32dp">
+
+        <!-- Top Bar -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+            android:gravity="center_vertical" android:orientation="horizontal"
+            android:paddingStart="24dp" android:paddingEnd="24dp">
+            <ImageView android:id="@+id/clinic_back_btn" android:layout_width="32dp"
+                android:layout_height="32dp" android:src="@drawable/ic_arrow_forward"
+                android:rotation="180" android:clickable="true" android:focusable="true"
+                android:contentDescription="Back" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_marginStart="12dp" android:layout_weight="1"
+                android:fontFamily="sans-serif-black" android:text="@string/brand_name"
+                android:textColor="@color/primary" android:textSize="18sp"
+                android:textStyle="bold|italic" />
+        </LinearLayout>
+
+        <!-- Hero Section with gradient -->
+        <FrameLayout android:layout_width="match_parent" android:layout_height="320dp"
+            android:layout_marginStart="16dp" android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp">
+            <View android:layout_width="match_parent" android:layout_height="match_parent"
+                android:background="@drawable/bg_cta_button" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_gravity="bottom" android:orientation="vertical"
+                android:padding="24dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:background="@drawable/bg_chip" android:paddingStart="12dp"
+                    android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="4dp"
+                    android:text="Premium Partner" android:textColor="@color/white"
+                    android:textSize="10sp" android:textStyle="bold" />
+                <TextView android:id="@+id/clinic_detail_name" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                    android:fontFamily="sans-serif-black" android:textColor="@color/white"
+                    android:textSize="28sp" />
+                <TextView android:id="@+id/clinic_detail_desc" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:layout_marginTop="8dp"
+                    android:textColor="#CCFFFFFF" android:textSize="14sp" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Live Queue Card -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp" android:background="@drawable/bg_role_card"
+            android:elevation="2dp" android:orientation="vertical" android:padding="24dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium" android:letterSpacing="0.08"
+                android:text="@string/clinic_live_queue" android:textAllCaps="true"
+                android:textColor="@color/primary" android:textSize="10sp"
+                android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:gravity="bottom"
+                android:orientation="horizontal">
+                <TextView android:id="@+id/clinic_queue_number" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:fontFamily="sans-serif-black"
+                    android:text="#--" android:textColor="@color/primary"
+                    android:textSize="40sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp" android:layout_marginBottom="6dp"
+                    android:text="@string/clinic_serving_now" android:textColor="@color/outline"
+                    android:textSize="14sp" />
+            </LinearLayout>
+            <ProgressBar android:id="@+id/clinic_queue_progress" android:layout_width="match_parent"
+                android:layout_height="8dp" android:layout_marginTop="16dp"
+                android:max="100" android:progress="60"
+                android:progressDrawable="@drawable/bg_progress_indicator"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+            <TextView android:id="@+id/clinic_est_wait" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_marginTop="8dp"
+                android:text="@string/clinic_est_wait" android:textColor="@color/outline"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Doctor Info Section -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp" android:background="@drawable/bg_card_surface_low"
+            android:orientation="vertical" android:padding="24dp">
+            <TextView android:id="@+id/clinic_doctor_name" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:fontFamily="sans-serif-medium"
+                android:textColor="@color/on_surface" android:textSize="22sp"
+                android:textStyle="bold" />
+            <TextView android:id="@+id/clinic_doctor_spec" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                android:textColor="@color/primary_container" android:textSize="14sp"
+                android:textStyle="bold" />
+            <TextView android:id="@+id/clinic_doctor_desc" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="16dp"
+                android:lineSpacingMultiplier="1.4" android:textColor="@color/on_surface_variant"
+                android:textSize="14sp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:baselineAligned="false"
+                android:orientation="horizontal">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp" android:layout_weight="1"
+                    android:background="@drawable/bg_input_field" android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:letterSpacing="0.08" android:text="@string/clinic_consultation_fee"
+                        android:textAllCaps="true" android:textColor="@color/outline"
+                        android:textSize="9sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/clinic_fee" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                        android:textColor="@color/on_surface" android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp" android:layout_weight="1"
+                    android:background="@drawable/bg_input_field" android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:letterSpacing="0.08" android:text="@string/clinic_next_slot"
+                        android:textAllCaps="true" android:textColor="@color/outline"
+                        android:textSize="9sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/clinic_next_slot" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                        android:textColor="@color/on_surface" android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Hours -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp" android:background="@drawable/bg_card_surface_low"
+            android:orientation="vertical" android:padding="24dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium" android:text="@string/clinic_facility_hours"
+                android:textColor="@color/on_surface" android:textSize="18sp"
+                android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="Mon — Fri"
+                    android:textColor="@color/on_surface_variant" android:textSize="14sp" />
+                <TextView android:id="@+id/clinic_hours_weekday" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textColor="@color/on_surface"
+                    android:textSize="14sp" android:textStyle="bold" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="Saturday"
+                    android:textColor="@color/on_surface_variant" android:textSize="14sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="09:00 — 16:00" android:textColor="@color/on_surface"
+                    android:textSize="14sp" android:textStyle="bold" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="Sunday"
+                    android:textColor="@color/outline" android:textSize="14sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/clinic_setup_closed" android:textColor="@color/outline"
+                    android:textSize="14sp" android:textStyle="italic" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Book Appointment CTA -->
+        <FrameLayout android:id="@+id/clinic_book_btn"
+            android:layout_width="match_parent" android:layout_height="56dp"
+            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp" android:background="@drawable/bg_cta_button"
+            android:clickable="true" android:elevation="6dp" android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_gravity="center" android:text="@string/clinic_book_appointment"
+                android:textColor="@color/white" android:textSize="16sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+    </LinearLayout>
+</ScrollView>

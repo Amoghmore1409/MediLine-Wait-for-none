@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/clinic_setup_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:layout_marginBottom="80dp" android:scrollbars="none">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingStart="24dp" android:paddingTop="24dp"
+            android:paddingEnd="24dp" android:paddingBottom="32dp">
+
+            <!-- Top bar -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+                android:gravity="center_vertical" android:orientation="horizontal">
+                <ImageView android:id="@+id/clinic_setup_back_btn" android:layout_width="32dp"
+                    android:layout_height="32dp" android:clickable="true" android:focusable="true"
+                    android:rotation="180" android:src="@drawable/ic_arrow_forward"
+                    android:contentDescription="Back" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp" android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium" android:text="Clinic Management"
+                    android:textColor="@color/primary" android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Editorial Header -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.08" android:text="@string/clinic_setup_system"
+                android:textAllCaps="true" android:textColor="@color/primary"
+                android:textSize="11sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:fontFamily="sans-serif-medium"
+                android:text="@string/clinic_setup_title" android:textColor="@color/on_surface"
+                android:textSize="28sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="@string/clinic_setup_subtitle"
+                android:textColor="@color/secondary" android:textSize="16sp" />
+
+            <!-- General Info Card -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="28dp" android:background="@drawable/bg_card_surface_low"
+                android:orientation="vertical" android:padding="24dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium" android:text="@string/clinic_setup_general"
+                    android:textColor="@color/primary" android:textSize="18sp"
+                    android:textStyle="bold" />
+                <!-- Clinic Name -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp" android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.08" android:text="@string/clinic_setup_name_label"
+                    android:textAllCaps="true" android:textColor="@color/secondary"
+                    android:textSize="10sp" android:textStyle="bold" />
+                <EditText android:id="@+id/setup_clinic_name" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="@string/clinic_setup_name_hint" android:inputType="text"
+                    android:paddingStart="16dp" android:paddingEnd="16dp"
+                    android:textColor="@color/on_surface" android:textColorHint="@color/outline"
+                    android:textSize="15sp" />
+                <!-- Specialty -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.08" android:text="@string/clinic_setup_specialty_label"
+                    android:textAllCaps="true" android:textColor="@color/secondary"
+                    android:textSize="10sp" android:textStyle="bold" />
+                <Spinner android:id="@+id/setup_specialty" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:paddingStart="12dp" android:paddingEnd="12dp" />
+            </LinearLayout>
+
+            <!-- Consultation Fee Card -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/bg_cta_button"
+                android:elevation="4dp" android:orientation="vertical" android:padding="24dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium" android:text="@string/clinic_setup_fee_title"
+                    android:textColor="@color/white" android:textSize="18sp"
+                    android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp" android:text="@string/clinic_setup_fee_subtitle"
+                    android:textColor="@color/primary_fixed_dim" android:textSize="12sp" />
+                <EditText android:id="@+id/setup_fee" android:layout_width="match_parent"
+                    android:layout_height="56dp" android:layout_marginTop="16dp"
+                    android:background="@android:color/transparent" android:fontFamily="sans-serif-black"
+                    android:hint="0" android:inputType="numberDecimal"
+                    android:textColor="@color/white" android:textColorHint="#80FFFFFF"
+                    android:textSize="40sp" />
+            </LinearLayout>
+
+            <!-- Location -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/bg_card_surface_low"
+                android:orientation="vertical" android:padding="24dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium" android:text="@string/clinic_setup_location"
+                    android:textColor="@color/primary" android:textSize="18sp"
+                    android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.08" android:text="@string/clinic_setup_address_label"
+                    android:textAllCaps="true" android:textColor="@color/secondary"
+                    android:textSize="10sp" android:textStyle="bold" />
+                <EditText android:id="@+id/setup_address" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="@string/clinic_setup_address_hint" android:inputType="text"
+                    android:paddingStart="16dp" android:paddingEnd="16dp"
+                    android:textColor="@color/on_surface" android:textColorHint="@color/outline"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Operating Hours -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/bg_card_surface_low"
+                android:orientation="vertical" android:padding="24dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:fontFamily="sans-serif-medium"
+                        android:text="@string/clinic_setup_hours" android:textColor="@color/primary"
+                        android:textSize="18sp" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip" android:paddingStart="12dp"
+                        android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="4dp"
+                        android:text="@string/clinic_setup_active" android:textAllCaps="true"
+                        android:textSize="9sp" android:textStyle="bold" />
+                </LinearLayout>
+                <!-- Opening Time -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp" android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Mon-Fri"
+                        android:textColor="@color/on_surface" android:textSize="14sp"
+                        android:textStyle="bold" />
+                    <EditText android:id="@+id/setup_open_time" android:layout_width="100dp"
+                        android:layout_height="40dp" android:background="@drawable/bg_input_field"
+                        android:gravity="center" android:hint="09:00" android:inputType="time"
+                        android:textColor="@color/on_surface" android:textSize="14sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp" android:layout_marginEnd="8dp"
+                        android:text="to" android:textColor="@color/outline" android:textSize="13sp" />
+                    <EditText android:id="@+id/setup_close_time" android:layout_width="100dp"
+                        android:layout_height="40dp" android:background="@drawable/bg_input_field"
+                        android:gravity="center" android:hint="17:00" android:inputType="time"
+                        android:textColor="@color/on_surface" android:textSize="14sp" />
+                </LinearLayout>
+                <!-- Sunday -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:alpha="0.6"
+                    android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Sunday"
+                        android:textColor="@color/on_surface" android:textSize="14sp"
+                        android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="@string/clinic_setup_closed" android:textColor="@color/error"
+                        android:textSize="14sp" android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Save Changes Floating CTA -->
+    <FrameLayout android:id="@+id/setup_save_btn" android:layout_width="match_parent"
+        android:layout_height="64dp" android:layout_gravity="bottom"
+        android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp" android:background="@drawable/bg_cta_button"
+        android:clickable="true" android:elevation="12dp" android:focusable="true"
+        android:foreground="?attr/selectableItemBackground">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" android:text="@string/clinic_setup_save"
+            android:textColor="@color/white" android:textSize="16sp" android:textStyle="bold" />
+    </FrameLayout>
+
+    <ProgressBar android:id="@+id/setup_progress" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_gravity="center"
+        android:visibility="gone" />
+</FrameLayout>

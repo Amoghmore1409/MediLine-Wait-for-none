@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/splash_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_splash_radial"
+    tools:context=".SplashActivity">
+
+    <!-- Decorative circle: top-right -->
+    <View
+        android:layout_width="256dp"
+        android:layout_height="256dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="-64dp"
+        android:layout_marginEnd="-64dp"
+        android:background="@drawable/bg_decorative_circle_secondary" />
+
+    <!-- Decorative circle: bottom-left -->
+    <View
+        android:layout_width="320dp"
+        android:layout_height="320dp"
+        android:layout_gravity="bottom|start"
+        android:layout_marginBottom="-32dp"
+        android:layout_marginStart="-40dp"
+        android:background="@drawable/bg_decorative_circle_primary" />
+
+    <!-- Central branding content -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!-- App icon in gradient rounded rect -->
+        <FrameLayout
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:background="@drawable/bg_icon_gradient_rounded"
+            android:elevation="16dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_medical_services"
+                android:contentDescription="@string/brand_name" />
+        </FrameLayout>
+
+        <!-- Brand name -->
+        <TextView
+            android:id="@+id/splash_brand_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-black"
+            android:text="@string/brand_name"
+            android:textColor="@color/primary"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.02" />
+
+        <!-- Tagline -->
+        <TextView
+            android:id="@+id/splash_tagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.15"
+            android:text="@string/splash_tagline"
+            android:textColor="@color/secondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Bottom progress indicator -->
+    <LinearLayout
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="64dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!-- Progress bar track + indicator -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="6dp">
+
+            <!-- Track -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_progress_track" />
+
+            <!-- Animated indicator (1/3 width) -->
+            <View
+                android:id="@+id/splash_progress_indicator"
+                android:layout_width="66dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:background="@drawable/bg_progress_indicator" />
+        </FrameLayout>
+
+        <!-- Loading text -->
+        <TextView
+            android:id="@+id/splash_loading_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/splash_loading"
+            android:textColor="@color/on_surface_variant_60"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+</FrameLayout>

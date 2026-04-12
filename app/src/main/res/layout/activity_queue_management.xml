@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/qm_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:scrollbars="none">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingStart="24dp" android:paddingTop="24dp"
+        android:paddingEnd="24dp" android:paddingBottom="32dp">
+
+        <!-- Top bar -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+            android:gravity="center_vertical" android:orientation="horizontal">
+            <ImageView android:id="@+id/qm_back_btn" android:layout_width="32dp"
+                android:layout_height="32dp" android:clickable="true" android:focusable="true"
+                android:rotation="180" android:src="@drawable/ic_arrow_forward"
+                android:contentDescription="Back" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_marginStart="12dp" android:layout_weight="1"
+                android:fontFamily="sans-serif-black" android:text="@string/brand_name"
+                android:textColor="@color/primary" android:textSize="18sp"
+                android:textStyle="bold|italic" />
+        </LinearLayout>
+
+        <!-- Current Consultation Card -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:background="@drawable/bg_card_surface_low"
+            android:orientation="horizontal" android:padding="24dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium" android:letterSpacing="0.08"
+                    android:text="@string/qm_in_consultation" android:textAllCaps="true"
+                    android:textColor="@color/on_secondary_fixed_variant" android:textSize="11sp"
+                    android:textStyle="bold" />
+                <TextView android:id="@+id/qm_current_token" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-black" android:text="Token #---"
+                    android:textColor="@color/primary" android:textSize="36sp" />
+                <TextView android:id="@+id/qm_current_patient" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                    android:textColor="@color/secondary" android:textSize="16sp" />
+            </LinearLayout>
+            <!-- Next Patient CTA -->
+            <FrameLayout android:id="@+id/qm_next_btn" android:layout_width="100dp"
+                android:layout_height="100dp" android:background="@drawable/bg_cta_button"
+                android:clickable="true" android:elevation="8dp" android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp"
+                        android:src="@drawable/ic_arrow_forward_white"
+                        android:contentDescription="@string/qm_next_patient" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" android:text="Next"
+                        android:textColor="@color/white" android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- Pause / Resume Controls -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:orientation="horizontal">
+            <FrameLayout android:id="@+id/qm_pause_btn" android:layout_width="0dp"
+                android:layout_height="56dp" android:layout_marginEnd="6dp"
+                android:layout_weight="1" android:background="@drawable/bg_role_card"
+                android:clickable="true" android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="@string/qm_pause_queue"
+                    android:textColor="@color/on_surface_variant" android:textSize="14sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+            <FrameLayout android:id="@+id/qm_resume_btn" android:layout_width="0dp"
+                android:layout_height="56dp" android:layout_marginStart="6dp"
+                android:layout_weight="1" android:background="@drawable/bg_role_card"
+                android:clickable="true" android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="@string/qm_resume_queue"
+                    android:textColor="@color/primary" android:textSize="14sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- Queue Health Panel -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:background="@drawable/bg_surface_highest"
+            android:orientation="vertical" android:padding="24dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium" android:text="@string/qm_queue_health"
+                android:textColor="@color/on_surface" android:textSize="18sp"
+                android:textStyle="bold" />
+            <!-- Completion -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="20dp" android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/qm_completion"
+                    android:textColor="@color/secondary" android:textSize="13sp" />
+                <TextView android:id="@+id/qm_completion_text" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textColor="@color/primary"
+                    android:textSize="14sp" android:textStyle="bold" />
+            </LinearLayout>
+            <ProgressBar android:id="@+id/qm_completion_progress" android:layout_width="match_parent"
+                android:layout_height="10dp" android:layout_marginTop="8dp"
+                android:max="100" android:progress="42"
+                android:progressDrawable="@drawable/bg_progress_indicator"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+            <!-- Avg Wait -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingTop="16dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="@string/qm_avg_wait"
+                    android:textColor="@color/secondary" android:textSize="13sp" />
+                <TextView android:id="@+id/qm_avg_wait" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textColor="@color/on_surface"
+                    android:textSize="16sp" android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Up Next Header -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="28dp" android:fontFamily="sans-serif-black"
+            android:text="@string/qm_up_next" android:textColor="@color/on_surface"
+            android:textSize="20sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/qm_patient_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:nestedScrollingEnabled="false" />
+    </LinearLayout>
+</ScrollView>

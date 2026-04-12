@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/otp_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="32dp"
+        android:paddingTop="80dp"
+        android:paddingEnd="32dp"
+        android:paddingBottom="48dp">
+
+        <!-- Lock Icon -->
+        <FrameLayout android:layout_width="80dp" android:layout_height="80dp"
+            android:layout_marginBottom="24dp" android:background="@drawable/bg_token_badge">
+            <ImageView android:layout_width="40dp" android:layout_height="40dp"
+                android:layout_gravity="center" android:src="@drawable/ic_lock"
+                android:contentDescription="@string/otp_title" />
+        </FrameLayout>
+
+        <!-- Title -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium" android:text="@string/otp_title"
+            android:textColor="@color/on_surface" android:textSize="32sp"
+            android:textStyle="bold" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:gravity="center"
+            android:lineSpacingMultiplier="1.4" android:paddingStart="24dp"
+            android:paddingEnd="24dp" android:text="@string/otp_subtitle"
+            android:textColor="@color/on_surface_variant" android:textSize="15sp" />
+
+        <!-- OTP Input Card -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="40dp" android:background="@drawable/bg_card_surface_low"
+            android:elevation="2dp" android:orientation="vertical"
+            android:padding="32dp">
+
+            <!-- 4 OTP digit inputs -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center" android:orientation="horizontal">
+                <EditText android:id="@+id/otp_1" android:layout_width="64dp"
+                    android:layout_height="80dp" android:layout_marginEnd="12dp"
+                    android:background="@drawable/bg_input_field" android:gravity="center"
+                    android:inputType="number" android:maxLength="1"
+                    android:textColor="@color/primary" android:textSize="28sp"
+                    android:textStyle="bold" />
+                <EditText android:id="@+id/otp_2" android:layout_width="64dp"
+                    android:layout_height="80dp" android:layout_marginEnd="12dp"
+                    android:background="@drawable/bg_input_field" android:gravity="center"
+                    android:inputType="number" android:maxLength="1"
+                    android:textColor="@color/primary" android:textSize="28sp"
+                    android:textStyle="bold" />
+                <EditText android:id="@+id/otp_3" android:layout_width="64dp"
+                    android:layout_height="80dp" android:layout_marginEnd="12dp"
+                    android:background="@drawable/bg_input_field" android:gravity="center"
+                    android:inputType="number" android:maxLength="1"
+                    android:textColor="@color/primary" android:textSize="28sp"
+                    android:textStyle="bold" />
+                <EditText android:id="@+id/otp_4" android:layout_width="64dp"
+                    android:layout_height="80dp"
+                    android:background="@drawable/bg_input_field" android:gravity="center"
+                    android:inputType="number" android:maxLength="1"
+                    android:textColor="@color/primary" android:textSize="28sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Verify Button -->
+            <FrameLayout android:id="@+id/otp_verify_btn" android:layout_width="match_parent"
+                android:layout_height="56dp" android:layout_marginTop="32dp"
+                android:background="@drawable/bg_cta_button" android:clickable="true"
+                android:elevation="6dp" android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="@string/otp_verify"
+                    android:textColor="@color/white" android:textSize="16sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <!-- Resend timer -->
+            <TextView android:id="@+id/otp_timer" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_gravity="center"
+                android:layout_marginTop="16dp" android:textColor="@color/on_surface_variant"
+                android:textSize="13sp" />
+            <TextView android:id="@+id/otp_resend_btn" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_gravity="center"
+                android:layout_marginTop="8dp" android:alpha="0.5" android:clickable="false"
+                android:text="@string/otp_resend" android:textColor="@color/primary"
+                android:textSize="13sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Security Badges -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="40dp" android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.1" android:text="@string/otp_security_label"
+            android:textAllCaps="true" android:textColor="@color/on_secondary_container"
+            android:textSize="10sp" android:textStyle="bold" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:baselineAligned="false"
+            android:orientation="horizontal">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp" android:layout_weight="1"
+                android:background="@drawable/bg_feature_card" android:gravity="center"
+                android:orientation="vertical" android:padding="16dp">
+                <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                    android:layout_marginBottom="8dp" android:src="@drawable/ic_lock"
+                    android:contentDescription="@string/otp_encryption" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:gravity="center" android:text="@string/otp_encryption"
+                    android:textColor="@color/on_surface_variant" android:textSize="10sp" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_marginStart="8dp" android:layout_weight="1"
+                android:background="@drawable/bg_feature_card" android:gravity="center"
+                android:orientation="vertical" android:padding="16dp">
+                <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                    android:layout_marginBottom="8dp" android:src="@drawable/ic_verified_user"
+                    android:contentDescription="@string/otp_2fa" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:gravity="center" android:text="@string/otp_2fa"
+                    android:textColor="@color/on_surface_variant" android:textSize="10sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

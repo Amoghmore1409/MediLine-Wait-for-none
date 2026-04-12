@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/stitch_mediline
+/app/google-services.json

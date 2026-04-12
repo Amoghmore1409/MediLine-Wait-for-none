@@ -1,3 +1,177 @@
 <resources>
     <string name="app_name">MediLine</string>
+    <!-- Replace this with your actual Web Client ID from Firebase Console → Authentication → Sign-in method → Google -->
+    <string name="default_web_client_id">914493385250-5qmrr92rsut9c082etqo2d5del8p54g9.apps.googleusercontent.com</string>
+    <string name="brand_name">MedLine</string>
+
+    <!-- Splash Screen -->
+    <string name="splash_tagline">SERENE NAVIGATOR</string>
+    <string name="splash_loading">Initializing Clinical Environment…</string>
+
+    <!-- Onboarding Screen -->
+    <string name="onboarding_chip">Advanced Patient Flow</string>
+    <string name="onboarding_headline_1">Healthcare,</string>
+    <string name="onboarding_headline_2">Expertly</string>
+    <string name="onboarding_headline_3"> Navigated.</string>
+    <string name="onboarding_subtitle">Real-time queue tracking and seamless appointments for patients and providers.</string>
+    <string name="onboarding_feature_live_title">Live Updates</string>
+    <string name="onboarding_feature_live_desc">Track your position in line from any device in real-time.</string>
+    <string name="onboarding_feature_booking_title">Smart Booking</string>
+    <string name="onboarding_feature_booking_desc">Intelligent scheduling that reduces wait times by up to 40%.</string>
+    <string name="onboarding_cta">Get Started</string>
+    <string name="onboarding_provider_prompt">Already a provider?</string>
+    <string name="onboarding_provider_login">Partner Login</string>
+
+    <!-- Role Selection Screen -->
+    <string name="role_title">Who are you?</string>
+    <string name="role_subtitle">Select your clinical profile to begin.</string>
+    <string name="role_patient">Patient</string>
+    <string name="role_patient_desc">View records &amp; status</string>
+    <string name="role_patient_cta">Get Started</string>
+    <string name="role_doctor">Doctor</string>
+    <string name="role_doctor_desc">Manage clinic &amp; queue</string>
+    <string name="role_doctor_cta">Clinic Dashboard</string>
+    <string name="role_badge_gdpr">GDPR Compliant</string>
+    <string name="role_badge_encryption">End-to-End Encryption</string>
+    <string name="role_bottom_prompt">New to MedLine?</string>
+    <string name="role_register_clinic">Register Clinic</string>
+
+    <!-- Login Screen -->
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Please enter your details to access your dashboard.</string>
+    <string name="login_email_label">EMAIL OR PHONE</string>
+    <string name="login_email_hint">e.g. medical@example.com</string>
+    <string name="login_password_label">PASSWORD</string>
+    <string name="login_password_hint">••••••••</string>
+    <string name="login_forgot_password">Forgot Password?</string>
+    <string name="login_sign_in">Sign In</string>
+    <string name="login_or">OR</string>
+    <string name="login_google">Continue with Google</string>
+    <string name="login_no_account">Don\'t have an account?</string>
+    <string name="login_create_account">Create Account</string>
+
+    <!-- Sign Up Screen -->
+    <string name="signup_title">Create Account</string>
+    <string name="signup_subtitle">Begin your journey with clinical excellence.</string>
+    <string name="signup_name_label">FULL NAME</string>
+    <string name="signup_name_hint">John Doe</string>
+    <string name="signup_email_label">EMAIL ADDRESS</string>
+    <string name="signup_email_hint">john@example.com</string>
+    <string name="signup_phone_label">PHONE NUMBER</string>
+    <string name="signup_phone_hint">+1 (555) 000-0000</string>
+    <string name="signup_password_label">SECURE PASSWORD</string>
+    <string name="signup_complete">Complete Registration</string>
+    <string name="signup_secure_label">SECURE REGISTRATION</string>
+    <string name="signup_has_account">Already part of the network?</string>
+    <string name="signup_login_link">Log in here</string>
+    <string name="signup_footer">Protected by Clinical Encryption\n© 2024 MedLine Health Systems</string>
+
+    <!-- OTP Verification Screen -->
+    <string name="otp_title">Verify Identity</string>
+    <string name="otp_subtitle">We\'ve sent a 4-digit security code to your registered mobile number ending in</string>
+    <string name="otp_verify">Verify Identity</string>
+    <string name="otp_resend_timer">Resend code in %s</string>
+    <string name="otp_resend">Resend OTP</string>
+    <string name="otp_security_label">SECURITY ASSURANCE</string>
+    <string name="otp_encryption">AES-256 Encrypted Connection</string>
+    <string name="otp_2fa">Two-Factor Authentication</string>
+
+    <!-- Patient Home Screen -->
+    <string name="patient_hero_title">Find care,\nminus the wait.</string>
+    <string name="patient_hero_subtitle">Book appointments or join virtual queues at top clinics near you.</string>
+    <string name="patient_search_hint">Search clinics, specialties…</string>
+    <string name="patient_categories">Categories</string>
+    <string name="patient_view_all">View All</string>
+    <string name="patient_nearby_clinics">Nearby Clinics</string>
+    <string name="patient_nearby_subtitle">Top rated facilities in your area</string>
+    <string name="patient_filter">Filter</string>
+    <string name="patient_book_now">Book Now</string>
+    <string name="patient_wait_time">Wait Time</string>
+    <string name="patient_est_wait">Est. Wait</string>
+
+    <!-- Clinic Details Screen -->
+    <string name="clinic_live_queue">LIVE QUEUE STATUS</string>
+    <string name="clinic_serving_now">serving now</string>
+    <string name="clinic_est_wait">Est. wait time:</string>
+    <string name="clinic_consultation_fee">Consultation Fee</string>
+    <string name="clinic_next_slot">Next Available Slot</string>
+    <string name="clinic_facility_hours">Facility Hours</string>
+    <string name="clinic_book_appointment">Book Appointment</string>
+    <string name="clinic_queue_map">Real-time Queue Map</string>
+    <string name="clinic_queue_map_subtitle">Track your position and wait times dynamically</string>
+    <string name="clinic_live">LIVE</string>
+
+    <!-- Queue Status Screen -->
+    <string name="queue_your_token">Your Token</string>
+    <string name="queue_active_session">ACTIVE SESSION</string>
+    <string name="queue_est_wait_label">EST. WAIT TIME</string>
+    <string name="queue_mins">mins</string>
+    <string name="queue_current_serving">Current Serving</string>
+    <string name="queue_patients_ahead">%d patients ahead of you</string>
+    <string name="queue_stay_nearby">Stay Nearby</string>
+    <string name="queue_stay_nearby_desc">We recommend staying within 5 mins of the clinic.</string>
+    <string name="queue_notifications_on">Notifications are ON</string>
+    <string name="queue_notifications_desc">We\'ll buzz you when you are next.</string>
+    <string name="queue_checkin">Check-in Manually</string>
+
+    <!-- Doctor Dashboard Screen -->
+    <string name="doctor_dashboard_title">Doctor Dashboard</string>
+    <string name="doctor_manage_queue">Manage Queue</string>
+    <string name="doctor_current_queue">Current Queue</string>
+    <string name="doctor_avg_wait">Avg. Wait Time</string>
+    <string name="doctor_patients_seen">Patients Seen</string>
+    <string name="doctor_upcoming">Upcoming Patients</string>
+    <string name="doctor_view_schedule">View Schedule</string>
+    <string name="doctor_optimal">Optimal Efficiency</string>
+
+    <!-- Queue Management Screen -->
+    <string name="qm_in_consultation">IN CONSULTATION</string>
+    <string name="qm_next_patient">Next Patient</string>
+    <string name="qm_pause_queue">Pause Queue</string>
+    <string name="qm_resume_queue">Resume Queue</string>
+    <string name="qm_queue_health">Queue Health</string>
+    <string name="qm_completion">Completion</string>
+    <string name="qm_avg_wait">Avg. Wait Time</string>
+    <string name="qm_next_priority">Next Priority</string>
+    <string name="qm_up_next">Up Next</string>
+    <string name="qm_view_report">View Full Report</string>
+    <string name="qm_waiting_since">WAITING SINCE</string>
+
+    <!-- Clinic Setup Screen -->
+    <string name="clinic_setup_title">Establish Your Practice</string>
+    <string name="clinic_setup_subtitle">Configure your clinic\'s digital presence and operational hours.</string>
+    <string name="clinic_setup_system">CLINICAL SYSTEM</string>
+    <string name="clinic_setup_general">General Information</string>
+    <string name="clinic_setup_name_label">Clinic Name</string>
+    <string name="clinic_setup_name_hint">Enter clinic name</string>
+    <string name="clinic_setup_specialty_label">Medical Specialty</string>
+    <string name="clinic_setup_fee_title">Consultation Fee</string>
+    <string name="clinic_setup_fee_subtitle">Base rate per visit</string>
+    <string name="clinic_setup_location">Clinic Location</string>
+    <string name="clinic_setup_address_label">Physical Address</string>
+    <string name="clinic_setup_address_hint">Street address, City, Zip</string>
+    <string name="clinic_setup_hours">Operating Hours</string>
+    <string name="clinic_setup_active">ACTIVE SCHEDULE</string>
+    <string name="clinic_setup_save">Save Changes</string>
+    <string name="clinic_setup_closed">Closed</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_queue">Queue</string>
+    <string name="nav_clinics">Clinics</string>
+    <string name="nav_bookings">Bookings</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_patients">Patients</string>
+    <string name="nav_clinic">Clinic</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Common -->
+    <string name="loading">Loading…</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="error_empty_fields">Please fill in all fields.</string>
+    <string name="error_invalid_email">Please enter a valid email.</string>
+    <string name="error_short_password">Password must be at least 6 characters.</string>
+    <string name="success_registration">Account created successfully!</string>
+    <string name="success_login">Welcome back!</string>
 </resources>
