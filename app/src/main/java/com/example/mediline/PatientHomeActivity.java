@@ -14,7 +14,16 @@ import com.example.mediline.model.Clinic;
 import com.example.mediline.repository.ClinicRepository;
 import com.example.mediline.util.SessionManager;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PatientHomeActivity extends AppCompatActivity implements ClinicAdapter.OnClinicClickListener {
@@ -24,6 +33,9 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
     private List<Clinic> clinics = new ArrayList<>();
     private ClinicRepository clinicRepo;
     private SessionManager session;
+    private FusedLocationProviderClient fusedLocationClient;
+    private Location currentUserLocation;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +50,8 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
         clinicList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ClinicAdapter(clinics, this);
         clinicList.setAdapter(adapter);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         setupBottomNav();
         loadClinics();
@@ -119,7 +133,63 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
                 clinics.add(demo3);
             }
             adapter.notifyDataSetChanged();
+            
+            checkLocationPermission();
         });
+    }
+
+    private void checkLocationPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            fetchLocationAndSort();
+        }
+    }
+
+    private void fetchLocationAndSort() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                if (location != null) {
+                    currentUserLocation = location;
+                    adapter.setPatientLocation(location);
+                    sortClinicsByDistance();
+                }
+            });
+        }
+    }
+
+    private void sortClinicsByDistance() {
+        if (currentUserLocation == null || clinics.isEmpty()) return;
+
+        Collections.sort(clinics, (c1, c2) -> {
+            float dist1 = Float.MAX_VALUE;
+            float dist2 = Float.MAX_VALUE;
+            
+            if (c1.getLatitude() != 0 && c1.getLongitude() != 0) {
+                Location loc1 = new Location("");
+                loc1.setLatitude(c1.getLatitude());
+                loc1.setLongitude(c1.getLongitude());
+                dist1 = currentUserLocation.distanceTo(loc1);
+            }
+            if (c2.getLatitude() != 0 && c2.getLongitude() != 0) {
+                Location loc2 = new Location("");
+                loc2.setLatitude(c2.getLatitude());
+                loc2.setLongitude(c2.getLongitude());
+                dist2 = currentUserLocation.distanceTo(loc2);
+            }
+            return Float.compare(dist1, dist2);
+        });
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                fetchLocationAndSort();
+            }
+        }
     }
 
     @Override
@@ -132,6 +202,8 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
         intent.putExtra("CLINIC_FEE", clinic.getConsultationFee());
         intent.putExtra("CLINIC_OPEN", clinic.getOpeningTime());
         intent.putExtra("CLINIC_CLOSE", clinic.getClosingTime());
+        intent.putExtra("CLINIC_LATITUDE", clinic.getLatitude());
+        intent.putExtra("CLINIC_LONGITUDE", clinic.getLongitude());
         startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }

@@ -168,6 +168,41 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Location Map Section -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp" android:background="@drawable/bg_card_surface_low"
+            android:orientation="vertical" android:padding="24dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium" android:text="Location"
+                android:textColor="@color/on_surface" android:textSize="18sp"
+                android:textStyle="bold" />
+            
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/clinic_map"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout android:id="@+id/btn_open_maps"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:gravity="center"
+                android:orientation="horizontal" android:background="@drawable/bg_input_field"
+                android:padding="12dp" android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Open in Maps App" android:textColor="@color/primary"
+                    android:textStyle="bold" android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
         <!-- Book Appointment CTA -->
         <FrameLayout android:id="@+id/clinic_book_btn"
             android:layout_width="match_parent" android:layout_height="56dp"

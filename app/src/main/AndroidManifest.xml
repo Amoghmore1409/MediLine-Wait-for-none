@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -13,6 +15,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediLine">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD7GkFUUkNzlX3qpq1uRdU5JciGLWWgJy0" />
 
         <!-- Splash Screen (Launcher) -->
         <activity
@@ -41,6 +47,7 @@
         <activity android:name=".DoctorDashboardActivity" android:exported="false" />
         <activity android:name=".QueueManagementActivity" android:exported="false" />
         <activity android:name=".ClinicSetupActivity" android:exported="false" />
+        <activity android:name=".MapPickerActivity" android:exported="false" />
 
         <!-- Legacy -->
         <activity android:name=".MainActivity" android:exported="false" />

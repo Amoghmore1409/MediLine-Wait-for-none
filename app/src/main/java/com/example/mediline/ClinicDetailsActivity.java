@@ -12,16 +12,27 @@ import com.example.mediline.model.Appointment;
 import com.example.mediline.repository.AppointmentRepository;
 import com.example.mediline.util.SessionManager;
 import com.example.mediline.util.UiUtils;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.ListenerRegistration;
+import android.net.Uri;
 
 import java.util.List;
 
-public class ClinicDetailsActivity extends AppCompatActivity {
+public class ClinicDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private AppointmentRepository appointmentRepo;
     private SessionManager session;
     private String clinicId;
+    private String clinicName;
+    private double clinicLatitude;
+    private double clinicLongitude;
     private ListenerRegistration queueListener;
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +45,20 @@ public class ClinicDetailsActivity extends AppCompatActivity {
 
         // Get clinic data from intent
         clinicId = getIntent().getStringExtra("CLINIC_ID");
-        String clinicName = getIntent().getStringExtra("CLINIC_NAME");
+        clinicName = getIntent().getStringExtra("CLINIC_NAME");
         String clinicAddress = getIntent().getStringExtra("CLINIC_ADDRESS");
         String specialty = getIntent().getStringExtra("CLINIC_SPECIALTY");
         double fee = getIntent().getDoubleExtra("CLINIC_FEE", 0);
         String openTime = getIntent().getStringExtra("CLINIC_OPEN");
         String closeTime = getIntent().getStringExtra("CLINIC_CLOSE");
+        clinicLatitude = getIntent().getDoubleExtra("CLINIC_LATITUDE", 0);
+        clinicLongitude = getIntent().getDoubleExtra("CLINIC_LONGITUDE", 0);
+
+        // Load map fragment
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.clinic_map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
 
         // Populate UI
         TextView nameView = findViewById(R.id.clinic_detail_name);
@@ -89,6 +108,41 @@ public class ClinicDetailsActivity extends AppCompatActivity {
 
         // Book Appointment
         findViewById(R.id.clinic_book_btn).setOnClickListener(v -> bookAppointment());
+
+        // Open in Maps App
+        findViewById(R.id.btn_open_maps).setOnClickListener(v -> {
+            if (clinicLatitude != 0 && clinicLongitude != 0) {
+                String uri = "geo:" + clinicLatitude + "," + clinicLongitude + "?q=" + clinicLatitude + "," + clinicLongitude;
+                if (clinicName != null) {
+                    uri += "(" + Uri.encode(clinicName) + ")";
+                }
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                intent.setPackage("com.google.android.apps.maps");
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    // Fallback if maps app not installed
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
+                }
+            } else {
+                UiUtils.showErrorDialog(this, "Location unavailable", "This clinic hasn't set their exact map coordinates yet.");
+            }
+        });
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        if (clinicLatitude != 0 && clinicLongitude != 0) {
+            LatLng location = new LatLng(clinicLatitude, clinicLongitude);
+            mMap.addMarker(new MarkerOptions().position(location).title(clinicName != null ? clinicName : "Clinic Location"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
+            
+            // Disable interactions to use it just for visual context since it's in a ScrollView
+            mMap.getUiSettings().setScrollGesturesEnabled(false);
+            mMap.getUiSettings().setZoomGesturesEnabled(false);
+            mMap.setOnMapClickListener(latLng -> findViewById(R.id.btn_open_maps).performClick());
+        }
     }
 
     private void bookAppointment() {

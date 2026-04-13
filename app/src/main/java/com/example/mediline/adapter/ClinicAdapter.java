@@ -9,7 +9,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mediline.R;
+import com.example.mediline.R;
 import com.example.mediline.model.Clinic;
+
+import android.location.Location;
 
 import java.util.List;
 
@@ -22,10 +25,16 @@ public class ClinicAdapter extends RecyclerView.Adapter<ClinicAdapter.ClinicView
 
     private final List<Clinic> clinics;
     private final OnClinicClickListener listener;
+    private Location patientLocation;
 
     public ClinicAdapter(List<Clinic> clinics, OnClinicClickListener listener) {
         this.clinics = clinics;
         this.listener = listener;
+    }
+
+    public void setPatientLocation(Location location) {
+        this.patientLocation = location;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -39,7 +48,17 @@ public class ClinicAdapter extends RecyclerView.Adapter<ClinicAdapter.ClinicView
     public void onBindViewHolder(@NonNull ClinicViewHolder holder, int position) {
         Clinic clinic = clinics.get(position);
         holder.name.setText(clinic.getName());
-        holder.address.setText(clinic.getAddress());
+        
+        if (patientLocation != null && clinic.getLatitude() != 0 && clinic.getLongitude() != 0) {
+            Location clinicLoc = new Location("");
+            clinicLoc.setLatitude(clinic.getLatitude());
+            clinicLoc.setLongitude(clinic.getLongitude());
+            float distanceMiles = patientLocation.distanceTo(clinicLoc) * 0.000621371f;
+            holder.address.setText(String.format("%.1f miles away \u2022 %s", distanceMiles, clinic.getAddress()));
+        } else {
+            holder.address.setText(clinic.getAddress());
+        }
+        
         holder.rating.setText("★ 4.8");
         holder.waitTime.setText("~15 mins");
 
