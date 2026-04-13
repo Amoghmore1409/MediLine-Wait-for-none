@@ -56,6 +56,12 @@ public class AppointmentRepository {
         db.collection("appointments").document(appointmentId).update(updates).addOnCompleteListener(listener);
     }
 
+    public void updateAppointmentField(String appointmentId, String field, Object value, OnCompleteListener<Void> listener) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(field, value);
+        db.collection("appointments").document(appointmentId).update(updates).addOnCompleteListener(listener);
+    }
+
     public void getAppointment(String appointmentId, OnSuccessListener<DocumentSnapshot> listener) {
         db.collection("appointments").document(appointmentId).get().addOnSuccessListener(listener);
     }
@@ -63,7 +69,6 @@ public class AppointmentRepository {
     public void getPatientAppointments(String patientId, OnSuccessListener<QuerySnapshot> listener) {
         db.collection("appointments")
                 .whereEqualTo("patientId", patientId)
-                .orderBy("tokenNumber", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(listener);
     }

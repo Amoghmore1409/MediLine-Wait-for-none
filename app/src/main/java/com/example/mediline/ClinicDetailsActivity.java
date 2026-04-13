@@ -19,8 +19,18 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.FileProvider;
 import android.net.Uri;
+import android.widget.ImageView;
+import android.view.View;
+import android.app.ProgressDialog;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class ClinicDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -33,6 +43,21 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
     private double clinicLongitude;
     private ListenerRegistration queueListener;
     private GoogleMap mMap;
+
+    private Uri currentPhotoUri;
+    private String uploadedMedicalRecordUrl;
+    private ImageView recordPreview;
+
+    private final ActivityResultLauncher<Uri> takePictureLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            success -> {
+                if (success) {
+                    recordPreview.setVisibility(View.VISIBLE);
+                    recordPreview.setImageURI(currentPhotoUri);
+                    // Reset previously uploaded URL if they retake
+                    uploadedMedicalRecordUrl = null;
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +134,18 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
         // Book Appointment
         findViewById(R.id.clinic_book_btn).setOnClickListener(v -> bookAppointment());
 
+        // Upload Record Button
+        recordPreview = findViewById(R.id.upload_record_preview);
+        findViewById(R.id.btn_upload_record).setOnClickListener(v -> {
+            try {
+                File imageFile = File.createTempFile("record_", ".jpg", getCacheDir());
+                currentPhotoUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", imageFile);
+                takePictureLauncher.launch(currentPhotoUri);
+            } catch (IOException e) {
+                UiUtils.showErrorDialog(this, "Error", "Could not create image file");
+            }
+        });
+
         // Open in Maps App
         findViewById(R.id.btn_open_maps).setOnClickListener(v -> {
             if (clinicLatitude != 0 && clinicLongitude != 0) {
@@ -181,6 +218,30 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void proceedWithBooking(String patientId, String patientName) {
+        if (currentPhotoUri != null && uploadedMedicalRecordUrl == null) {
+            // Needs to upload image first
+            ProgressDialog progress = new ProgressDialog(this);
+            progress.setMessage("Uploading medical record...");
+            progress.setCancelable(false);
+            progress.show();
+
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("Images/Records/" + System.currentTimeMillis() + ".jpg");
+            storageRef.putFile(currentPhotoUri).addOnSuccessListener(taskSnapshot -> {
+                storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    uploadedMedicalRecordUrl = uri.toString();
+                    progress.dismiss();
+                    finalizeBooking(patientId, patientName);
+                });
+            }).addOnFailureListener(e -> {
+                progress.dismiss();
+                UiUtils.showErrorDialog(this, "Upload Failed", "Failed to upload medical record: " + e.getMessage());
+            });
+        } else {
+            finalizeBooking(patientId, patientName);
+        }
+    }
+
+    private void finalizeBooking(String patientId, String patientName) {
         // Get next token number
         appointmentRepo.getNextTokenNumber(clinicId, querySnapshot -> {
             int nextToken = 1;
@@ -195,6 +256,9 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
                     clinicId, nextToken, "WAITING", "APP",
                     patientId, patientName, "Consultation"
             );
+            if (uploadedMedicalRecordUrl != null) {
+                appointment.setPatientMedicalRecordUrl(uploadedMedicalRecordUrl);
+            }
 
             appointmentRepo.createAppointment(appointment, task -> {
                 if (task.isSuccessful()) {

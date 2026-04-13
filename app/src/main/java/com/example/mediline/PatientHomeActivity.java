@@ -19,6 +19,8 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import com.example.mediline.repository.AppointmentRepository;
+import com.example.mediline.model.Appointment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
@@ -32,6 +34,7 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
     private ClinicAdapter adapter;
     private List<Clinic> clinics = new ArrayList<>();
     private ClinicRepository clinicRepo;
+    private AppointmentRepository appointmentRepo;
     private SessionManager session;
     private FusedLocationProviderClient fusedLocationClient;
     private Location currentUserLocation;
@@ -44,6 +47,7 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
         setContentView(R.layout.activity_patient_home);
 
         clinicRepo = new ClinicRepository();
+        appointmentRepo = new AppointmentRepository();
         session = new SessionManager(this);
 
         clinicList = findViewById(R.id.patient_clinic_list);
@@ -67,11 +71,30 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
 
         // Queue tab — show queue status (needs an active appointment)
         findViewById(R.id.nav_queue).setOnClickListener(v -> {
-            Intent intent = new Intent(this, QueueStatusActivity.class);
-            intent.putExtra("TOKEN_NUMBER", 0);
-            intent.putExtra("CLINIC_NAME", "MedLine Clinic");
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            appointmentRepo.getPatientAppointments(session.getUserId(), querySnapshot -> {
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    Appointment active = null;
+                    for (var doc : querySnapshot.getDocuments()) {
+                        Appointment appt = doc.toObject(Appointment.class);
+                        if (appt != null && ("WAITING".equals(appt.getStatus()) || "IN_PROGRESS".equals(appt.getStatus()))) {
+                            active = appt;
+                            break;
+                        }
+                    }
+                    if (active != null) {
+                        Intent intent = new Intent(this, QueueStatusActivity.class);
+                        intent.putExtra("TOKEN_NUMBER", active.getTokenNumber());
+                        intent.putExtra("CLINIC_ID", active.getClinicId());
+                        intent.putExtra("CLINIC_NAME", "Active Appointment");
+                        startActivity(intent);
+                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    } else {
+                        Toast.makeText(this, "You have no active appointments.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(this, "You have no active appointments.", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         // Bookings tab — opens clinic details (for now, navigate to first clinic)

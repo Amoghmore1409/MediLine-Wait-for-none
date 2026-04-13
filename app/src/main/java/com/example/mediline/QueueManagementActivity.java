@@ -16,7 +16,23 @@ import com.example.mediline.repository.AppointmentRepository;
 import com.example.mediline.repository.ClinicRepository;
 import com.example.mediline.util.SessionManager;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import com.bumptech.glide.Glide;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.FileProvider;
+
+import android.net.Uri;
+import android.app.ProgressDialog;
+import android.app.Dialog;
+import android.view.View;
+import android.view.Window;
+import android.widget.ImageView;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +47,15 @@ public class QueueManagementActivity extends AppCompatActivity {
     private ListenerRegistration queueListener;
     private String clinicId;
     private Appointment currentPatient;
+    private Uri prescriptionPhotoUri;
+
+    private final ActivityResultLauncher<Uri> takePrescriptionLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            success -> {
+                if (success && currentPatient != null) {
+                    uploadPrescription();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +85,10 @@ public class QueueManagementActivity extends AppCompatActivity {
                 Toast.makeText(this, "Queue paused", Toast.LENGTH_SHORT).show());
         findViewById(R.id.qm_resume_btn).setOnClickListener(v ->
                 Toast.makeText(this, "Queue resumed", Toast.LENGTH_SHORT).show());
+
+        // Buttons for Records
+        findViewById(R.id.qm_view_record_btn).setOnClickListener(v -> showMedicalRecord());
+        findViewById(R.id.qm_upload_prescription_btn).setOnClickListener(v -> startPrescriptionCapture());
 
         if (clinicId != null) {
             startQueueListener();
@@ -114,13 +143,24 @@ public class QueueManagementActivity extends AppCompatActivity {
     private void updateUI(int completed, int total) {
         TextView currentToken = findViewById(R.id.qm_current_token);
         TextView currentPatientName = findViewById(R.id.qm_current_patient);
+        TextView viewRecordBtn = findViewById(R.id.qm_view_record_btn);
+        TextView uploadPrescriptionBtn = findViewById(R.id.qm_upload_prescription_btn);
 
         if (currentPatient != null) {
             currentToken.setText("Token #" + String.format("%03d", currentPatient.getTokenNumber()));
             currentPatientName.setText("Patient: " + (currentPatient.getPatientName() != null ? currentPatient.getPatientName() : "Walk-in"));
+            
+            uploadPrescriptionBtn.setVisibility(View.VISIBLE);
+            if (currentPatient.getPatientMedicalRecordUrl() != null && !currentPatient.getPatientMedicalRecordUrl().isEmpty()) {
+                viewRecordBtn.setVisibility(View.VISIBLE);
+            } else {
+                viewRecordBtn.setVisibility(View.GONE);
+            }
         } else {
             currentToken.setText("Token #---");
             currentPatientName.setText("No patient in consultation");
+            viewRecordBtn.setVisibility(View.GONE);
+            uploadPrescriptionBtn.setVisibility(View.GONE);
         }
 
         TextView completionText = findViewById(R.id.qm_completion_text);
@@ -133,6 +173,56 @@ public class QueueManagementActivity extends AppCompatActivity {
 
         TextView avgWait = findViewById(R.id.qm_avg_wait);
         avgWait.setText((waitingAppointments.size() * 5) + " min");
+    }
+
+    private void showMedicalRecord() {
+        if (currentPatient == null || currentPatient.getPatientMedicalRecordUrl() == null) return;
+        
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.activity_clinic_details); // We can just use a dynamic imageview instead of external layout
+        dialog.dismiss(); // Clear if showing
+        
+        Dialog imgDialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        ImageView imageView = new ImageView(this);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        Glide.with(this).load(currentPatient.getPatientMedicalRecordUrl()).into(imageView);
+        imageView.setOnClickListener(v -> imgDialog.dismiss());
+        imgDialog.setContentView(imageView);
+        imgDialog.show();
+    }
+
+    private void startPrescriptionCapture() {
+        try {
+            File imageFile = File.createTempFile("prescription_", ".jpg", getCacheDir());
+            prescriptionPhotoUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", imageFile);
+            takePrescriptionLauncher.launch(prescriptionPhotoUri);
+        } catch (IOException e) {
+            Toast.makeText(this, "Could not create image file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void uploadPrescription() {
+        ProgressDialog progress = new ProgressDialog(this);
+        progress.setMessage("Uploading prescription...");
+        progress.setCancelable(false);
+        progress.show();
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("Images/Prescriptions/" + System.currentTimeMillis() + ".jpg");
+        storageRef.putFile(prescriptionPhotoUri).addOnSuccessListener(taskSnapshot -> {
+            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                progress.dismiss();
+                // update current appointment
+                appointmentRepo.updateAppointmentField(currentPatient.getAppointmentId(), "prescriptionUrl", uri.toString(), task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Prescription uploaded successfully!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
+        }).addOnFailureListener(e -> {
+            progress.dismiss();
+            Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void advanceQueue() {

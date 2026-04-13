@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mediline.model.Appointment;
 import com.example.mediline.repository.AppointmentRepository;
+import com.example.mediline.util.SessionManager;
+import com.example.mediline.util.UiUtils;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
@@ -17,9 +19,11 @@ import java.util.List;
 public class QueueStatusActivity extends AppCompatActivity {
 
     private AppointmentRepository appointmentRepo;
+    private SessionManager session;
     private ListenerRegistration queueListener;
     private int myTokenNumber;
     private String clinicId;
+    private String myAppointmentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,7 @@ public class QueueStatusActivity extends AppCompatActivity {
         setContentView(R.layout.activity_queue_status);
 
         appointmentRepo = new AppointmentRepository();
+        session = new SessionManager(this);
 
         myTokenNumber = getIntent().getIntExtra("TOKEN_NUMBER", 0);
         clinicId = getIntent().getStringExtra("CLINIC_ID");
@@ -47,32 +52,66 @@ public class QueueStatusActivity extends AppCompatActivity {
         findViewById(R.id.queue_checkin_btn).setOnClickListener(v ->
                 Toast.makeText(this, "Manual check-in confirmed!", Toast.LENGTH_SHORT).show());
 
+        // Cancel button
+        findViewById(R.id.queue_cancel_btn).setOnClickListener(v -> cancelAppointment());
+
         // Listen for real-time queue updates
         if (clinicId != null) {
             startQueueListener();
         }
     }
 
+    private void cancelAppointment() {
+        if (myAppointmentId == null) {
+            Toast.makeText(this, "Could not find your active appointment.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Cancel Appointment")
+                .setMessage("Are you sure you want to cancel your appointment? This action cannot be undone.")
+                .setPositiveButton("Yes, Cancel", (dialog, which) -> {
+                    appointmentRepo.updateAppointmentStatus(myAppointmentId, "CANCELLED", task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(this, "Appointment cancelled successfully.", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            UiUtils.showErrorDialog(this, "Error", "Failed to cancel appointment.");
+                        }
+                    });
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
     private void startQueueListener() {
         queueListener = appointmentRepo.listenToQueue(clinicId, (snapshots, error) -> {
             if (error != null || snapshots == null) return;
 
-            List<Appointment> queue = snapshots.toObjects(Appointment.class);
-
-            // Find currently serving (lowest token with IN_PROGRESS or first WAITING)
             int currentServing = 0;
             int patientsAhead = 0;
 
-            for (Appointment appt : queue) {
-                if ("IN_PROGRESS".equals(appt.getStatus())) {
-                    currentServing = appt.getTokenNumber();
-                } else if ("WAITING".equals(appt.getStatus()) && appt.getTokenNumber() < myTokenNumber) {
-                    patientsAhead++;
+            for (var doc : snapshots.getDocuments()) {
+                Appointment appt = doc.toObject(Appointment.class);
+                if (appt != null) {
+                    appt.setAppointmentId(doc.getId()); // Store ID from Firestore
+                    
+                    if (appt.getPatientId() != null && appt.getPatientId().equals(session.getUserId())) {
+                        myAppointmentId = appt.getAppointmentId();
+                        myTokenNumber = appt.getTokenNumber(); // Dynamically update token number just in case
+                    }
+
+                    if ("IN_PROGRESS".equals(appt.getStatus())) {
+                        currentServing = appt.getTokenNumber();
+                    } else if ("WAITING".equals(appt.getStatus()) && appt.getTokenNumber() < myTokenNumber) {
+                        patientsAhead++;
+                    }
                 }
             }
 
-            if (currentServing == 0 && !queue.isEmpty()) {
-                currentServing = queue.get(0).getTokenNumber();
+            if (currentServing == 0 && !snapshots.isEmpty()) {
+                Appointment firstWait = snapshots.getDocuments().get(0).toObject(Appointment.class);
+                if (firstWait != null) currentServing = firstWait.getTokenNumber();
             }
 
             // Update UI

@@ -21,6 +21,9 @@ public class Appointment {
     private Date estimatedTime;
     @ServerTimestamp
     private Date createdAt;
+    
+    private String patientMedicalRecordUrl;
+    private String prescriptionUrl;
 
     public Appointment() {}
 
@@ -59,4 +62,8 @@ public class Appointment {
     public void setEstimatedTime(Date estimatedTime) { this.estimatedTime = estimatedTime; }
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+    public String getPatientMedicalRecordUrl() { return patientMedicalRecordUrl; }
+    public void setPatientMedicalRecordUrl(String patientMedicalRecordUrl) { this.patientMedicalRecordUrl = patientMedicalRecordUrl; }
+    public String getPrescriptionUrl() { return prescriptionUrl; }
+    public void setPrescriptionUrl(String prescriptionUrl) { this.prescriptionUrl = prescriptionUrl; }
 }

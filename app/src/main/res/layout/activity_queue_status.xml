@@ -177,6 +177,13 @@
                     android:textColor="@color/white" android:textSize="14sp"
                     android:textStyle="bold" />
             </FrameLayout>
+
+            <TextView android:id="@+id/queue_cancel_btn" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_gravity="center"
+                android:layout_marginTop="16dp" android:text="Cancel Appointment"
+                android:textColor="#F44336" android:textSize="14sp"
+                android:textStyle="bold" android:clickable="true" android:focusable="true"
+                android:padding="8dp"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
