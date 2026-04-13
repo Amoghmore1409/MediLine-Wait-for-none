@@ -4,6 +4,11 @@
     <string name="default_web_client_id">914493385250-5qmrr92rsut9c082etqo2d5del8p54g9.apps.googleusercontent.com</string>
     <string name="brand_name">MedLine</string>
 
+    <!-- Map Picker -->
+    <string name="location_marker_description">Location Marker</string>
+    <string name="drag_map_to_set_location">Drag map to set location</string>
+    <string name="confirm_location">Confirm Location</string>
+
     <!-- Splash Screen -->
     <string name="splash_tagline">SERENE NAVIGATOR</string>
     <string name="splash_loading">Initializing Clinical Environment…</string>
