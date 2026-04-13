@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.mediline.model.Appointment;
 import com.example.mediline.repository.AppointmentRepository;
 import com.example.mediline.util.SessionManager;
+import com.example.mediline.util.UiUtils;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class ClinicDetailsActivity extends AppCompatActivity {
     private AppointmentRepository appointmentRepo;
     private SessionManager session;
     private String clinicId;
+    private ListenerRegistration queueListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +62,14 @@ public class ClinicDetailsActivity extends AppCompatActivity {
         nextSlot.setText("Today");
         hoursWeekday.setText((openTime != null ? openTime : "08:00") + " — " + (closeTime != null ? closeTime : "17:00"));
 
-        // Load queue data
+        // Load queue data with real-time listener
         if (clinicId != null) {
-            appointmentRepo.getQueueForClinic(clinicId, querySnapshot -> {
+            queueListener = appointmentRepo.listenToQueue(clinicId, (querySnapshot, error) -> {
+                if (error != null) {
+                    // Error loading queue, but don't crash
+                    return;
+                }
+
                 if (querySnapshot != null) {
                     List<Appointment> queue = querySnapshot.toObjects(Appointment.class);
                     int currentServing = queue.isEmpty() ? 0 : queue.get(0).getTokenNumber();
@@ -85,11 +92,41 @@ public class ClinicDetailsActivity extends AppCompatActivity {
     }
 
     private void bookAppointment() {
-        if (clinicId == null) return;
+        if (clinicId == null) {
+            UiUtils.showErrorDialog(this, "Error", "Clinic ID not found");
+            return;
+        }
 
         String patientId = session.getUserId();
         String patientName = session.getUserName();
 
+        if (patientId == null || patientId.isEmpty()) {
+            UiUtils.showErrorDialog(this, "Error", "Patient ID not found. Please login again.");
+            return;
+        }
+
+        // Check if patient already has an active appointment at this clinic
+        appointmentRepo.getPatientActiveAppointmentAtClinic(patientId, clinicId, existingAppointments -> {
+            if (existingAppointments != null && !existingAppointments.isEmpty()) {
+                // Patient already has an active appointment
+                Appointment existingAppt = existingAppointments.getDocuments().get(0).toObject(Appointment.class);
+                if (existingAppt != null) {
+                    UiUtils.showWarningDialog(this,
+                        "Active Appointment",
+                        "You already have an active appointment (Token #" + existingAppt.getTokenNumber() +
+                        "). Complete it before booking again.");
+                }
+                return;
+            }
+
+            // No active appointment, proceed with booking
+            proceedWithBooking(patientId, patientName);
+        }).addOnFailureListener(e -> {
+            UiUtils.showErrorDialog(this, "Error", "Error checking appointments: " + e.getMessage());
+        });
+    }
+
+    private void proceedWithBooking(String patientId, String patientName) {
         // Get next token number
         appointmentRepo.getNextTokenNumber(clinicId, querySnapshot -> {
             int nextToken = 1;
@@ -107,7 +144,7 @@ public class ClinicDetailsActivity extends AppCompatActivity {
 
             appointmentRepo.createAppointment(appointment, task -> {
                 if (task.isSuccessful()) {
-                    Toast.makeText(this, "Booked! Token #" + appointment.getTokenNumber(), Toast.LENGTH_SHORT).show();
+                    UiUtils.showSuccessDialog(this, "Booking Successful", "You have been booked!\n\nToken #" + appointment.getTokenNumber());
 
                     Intent intent = new Intent(this, QueueStatusActivity.class);
                     intent.putExtra("TOKEN_NUMBER", appointment.getTokenNumber());
@@ -116,9 +153,20 @@ public class ClinicDetailsActivity extends AppCompatActivity {
                     startActivity(intent);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 } else {
-                    Toast.makeText(this, R.string.error_generic, Toast.LENGTH_SHORT).show();
+                    UiUtils.showErrorDialog(this, "Booking Failed", "Booking failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"));
                 }
             });
+        }).addOnFailureListener(e -> {
+            UiUtils.showErrorDialog(this, "Error", "Failed to get token number: " + e.getMessage());
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Clean up listener to prevent memory leaks
+        if (queueListener != null) {
+            queueListener.remove();
+        }
     }
 }

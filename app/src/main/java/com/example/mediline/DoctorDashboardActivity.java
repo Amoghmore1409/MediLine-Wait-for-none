@@ -71,8 +71,28 @@ public class DoctorDashboardActivity extends AppCompatActivity {
             startActivity(new Intent(this, ClinicSetupActivity.class));
         });
 
+        // Profile top button and bottom nav - show profile dialog with logout
+        findViewById(R.id.doctor_profile_btn).setOnClickListener(v -> showProfileDialog());
+        findViewById(R.id.doc_nav_profile).setOnClickListener(v -> showProfileDialog());
+
         // Load clinic and queue data
         loadDashboardData();
+    }
+
+    private void showProfileDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Profile")
+                .setMessage("Logged in as: " + session.getUserEmail() + "\nRole: " + session.getUserRole())
+                .setPositiveButton("Logout", (dialog, which) -> {
+                    session.logout();
+                    new com.example.mediline.repository.AuthRepository().signOut();
+                    Intent intent = new Intent(this, OnboardingActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override

@@ -194,6 +194,7 @@ To address these issues, we propose an **Android-based application** featuring a
 - **Architecture:** MVVM (Model–View–ViewModel)
 - **Minimum SDK:** API 24 (Android 7.0) or higher
 - **Design System:** Material Design 3
+- **Backend:** Firebase
 
 ### 9.2 UI & Navigation
 - Activities and Fragments
