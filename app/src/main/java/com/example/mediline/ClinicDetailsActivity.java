@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mediline.model.Appointment;
 import com.example.mediline.repository.AppointmentRepository;
+import com.example.mediline.service.QueueNotificationService;
 import com.example.mediline.util.SessionManager;
 import com.example.mediline.util.UiUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -263,6 +264,14 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
             appointmentRepo.createAppointment(appointment, task -> {
                 if (task.isSuccessful()) {
                     UiUtils.showSuccessDialog(this, "Booking Successful", "You have been booked!\n\nToken #" + appointment.getTokenNumber());
+
+                    // Start Tracking Service immediately
+                    Intent serviceIntent = new Intent(this, QueueNotificationService.class);
+                    serviceIntent.putExtra("CLINIC_ID", clinicId);
+                    serviceIntent.putExtra("PATIENT_ID", patientId);
+                    serviceIntent.putExtra("APPOINTMENT_ID", task.getResult().getId());
+                    serviceIntent.putExtra("TOKEN_NUMBER", appointment.getTokenNumber());
+                    startService(serviceIntent);
 
                     Intent intent = new Intent(this, QueueStatusActivity.class);
                     intent.putExtra("TOKEN_NUMBER", appointment.getTokenNumber());

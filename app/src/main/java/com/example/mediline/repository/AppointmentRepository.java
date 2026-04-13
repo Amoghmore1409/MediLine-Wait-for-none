@@ -66,6 +66,10 @@ public class AppointmentRepository {
         db.collection("appointments").document(appointmentId).get().addOnSuccessListener(listener);
     }
 
+    public DocumentReference getAppointmentRef(String appointmentId) {
+        return db.collection("appointments").document(appointmentId);
+    }
+
     public void getPatientAppointments(String patientId, OnSuccessListener<QuerySnapshot> listener) {
         db.collection("appointments")
                 .whereEqualTo("patientId", patientId)

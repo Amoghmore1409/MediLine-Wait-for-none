@@ -17,10 +17,12 @@ import com.example.mediline.util.SessionManager;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import com.example.mediline.repository.AppointmentRepository;
 import com.example.mediline.model.Appointment;
+import com.example.mediline.service.QueueNotificationService;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
@@ -39,6 +41,7 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
     private FusedLocationProviderClient fusedLocationClient;
     private Location currentUserLocation;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1002;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,40 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
 
         setupBottomNav();
         loadClinics();
+        checkNotificationPermission();
+        checkForActiveAppointmentToTrack();
+    }
+
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    private void checkForActiveAppointmentToTrack() {
+        appointmentRepo.getPatientAppointments(session.getUserId(), querySnapshot -> {
+            if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                for (var doc : querySnapshot.getDocuments()) {
+                    Appointment appt = doc.toObject(Appointment.class);
+                    if (appt != null && ("WAITING".equals(appt.getStatus()) || "IN_PROGRESS".equals(appt.getStatus()))) {
+                        appt.setAppointmentId(doc.getId());
+                        startTrackingService(appt);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    private void startTrackingService(Appointment active) {
+        Intent serviceIntent = new Intent(this, QueueNotificationService.class);
+        serviceIntent.putExtra("CLINIC_ID", active.getClinicId());
+        serviceIntent.putExtra("PATIENT_ID", active.getPatientId());
+        serviceIntent.putExtra("APPOINTMENT_ID", active.getAppointmentId());
+        serviceIntent.putExtra("TOKEN_NUMBER", active.getTokenNumber());
+        startService(serviceIntent);
     }
 
     private void setupBottomNav() {
@@ -77,11 +114,14 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
                     for (var doc : querySnapshot.getDocuments()) {
                         Appointment appt = doc.toObject(Appointment.class);
                         if (appt != null && ("WAITING".equals(appt.getStatus()) || "IN_PROGRESS".equals(appt.getStatus()))) {
+                            appt.setAppointmentId(doc.getId()); // ensure we have ID
                             active = appt;
                             break;
                         }
                     }
                     if (active != null) {
+                        startTrackingService(active); // ensure tracking starts here too
+                        
                         Intent intent = new Intent(this, QueueStatusActivity.class);
                         intent.putExtra("TOKEN_NUMBER", active.getTokenNumber());
                         intent.putExtra("CLINIC_ID", active.getClinicId());
