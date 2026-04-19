@@ -100,6 +100,7 @@
                     android:fontFamily="sans-serif-medium" android:text="@string/clinic_setup_location"
                     android:textColor="@color/primary" android:textSize="18sp"
                     android:textStyle="bold" />
+
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" android:fontFamily="sans-serif-medium"
                     android:letterSpacing="0.08" android:text="@string/clinic_setup_address_label"
@@ -112,6 +113,16 @@
                     android:paddingStart="16dp" android:paddingEnd="16dp"
                     android:textColor="@color/on_surface" android:textColorHint="@color/outline"
                     android:textSize="15sp" />
+
+                <!-- Map Picker Button -->
+                <Button android:id="@+id/btn_pick_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Select on Map"
+                    android:textAllCaps="false"
+                    android:backgroundTint="@color/primary"
+                    android:textColor="@color/white"/>
             </LinearLayout>
 
             <!-- Operating Hours -->
