@@ -3,3 +3,5 @@
 
 # Firebase config (do not commit)
 /google-services.json
+
+/app/src/main/AndroidManifest.xml

@@ -14,6 +14,7 @@ import com.example.mediline.model.Appointment;
 import com.example.mediline.repository.AppointmentRepository;
 import com.example.mediline.repository.ClinicRepository;
 import com.example.mediline.util.SessionManager;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class DoctorDashboardActivity extends AppCompatActivity {
     private ClinicRepository clinicRepo;
     private SessionManager session;
     private String clinicId;
+    private ListenerRegistration queueListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +77,7 @@ public class DoctorDashboardActivity extends AppCompatActivity {
         findViewById(R.id.doctor_profile_btn).setOnClickListener(v -> showProfileDialog());
         findViewById(R.id.doc_nav_profile).setOnClickListener(v -> showProfileDialog());
 
-        // Load clinic and queue data
+        // Initial load
         loadDashboardData();
     }
 
@@ -95,12 +97,6 @@ public class DoctorDashboardActivity extends AppCompatActivity {
                 .show();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadDashboardData();
-    }
-
     private void loadDashboardData() {
         String userId = session.getUserId();
         if (userId == null) return;
@@ -110,50 +106,64 @@ public class DoctorDashboardActivity extends AppCompatActivity {
                 var clinicDoc = querySnapshot.getDocuments().get(0);
                 clinicId = clinicDoc.getId();
 
-                // Load appointments for this clinic
-                appointmentRepo.getAllAppointmentsForClinic(clinicId, apptSnapshot -> {
-                    appointments.clear();
-                    int waitingCount = 0;
-                    int completedCount = 0;
-
-                    if (apptSnapshot != null) {
-                        for (var doc : apptSnapshot.getDocuments()) {
-                            Appointment appt = doc.toObject(Appointment.class);
-                            if (appt != null) {
-                                appt.setAppointmentId(doc.getId());
-                                String status = appt.getStatus();
-                                if ("WAITING".equals(status) || "IN_PROGRESS".equals(status)) {
-                                    appointments.add(appt);
-                                    if ("WAITING".equals(status)) waitingCount++;
-                                }
-                                if ("COMPLETED".equals(status)) completedCount++;
-                            }
-                        }
-                    }
-
-                    adapter.notifyDataSetChanged();
-
-                    // Update stats
-                    TextView queueCount = findViewById(R.id.doctor_queue_count);
-                    queueCount.setText(String.valueOf(waitingCount));
-
-                    TextView patientsSeen = findViewById(R.id.doctor_patients_seen);
-                    patientsSeen.setText(String.valueOf(completedCount));
-
-                    TextView avgWait = findViewById(R.id.doctor_avg_wait);
-                    avgWait.setText((waitingCount * 5) + " min");
-
-                    android.widget.ProgressBar progressBar = findViewById(R.id.doctor_queue_progress);
-                    int total = waitingCount + completedCount;
-                    if (total > 0) {
-                        progressBar.setProgress((int) ((double) completedCount / total * 100));
-                    }
-                });
+                // Start real-time listener for the dashboard
+                startRealTimeUpdates();
             } else {
                 // No clinic yet - show demo data
                 addDemoPatients();
             }
         });
+    }
+
+    private void startRealTimeUpdates() {
+        if (queueListener != null) queueListener.remove();
+
+        queueListener = appointmentRepo.listenToQueue(clinicId, (apptSnapshot, error) -> {
+            if (error != null) return;
+
+            appointments.clear();
+            int waitingCount = 0;
+            int completedCount = 0;
+
+            if (apptSnapshot != null) {
+                for (var doc : apptSnapshot.getDocuments()) {
+                    Appointment appt = doc.toObject(Appointment.class);
+                    if (appt != null) {
+                        appt.setAppointmentId(doc.getId());
+                        String status = appt.getStatus();
+                        
+                        // We track all appointments to calculate stats, 
+                        // but only show WAITING/IN_PROGRESS in the dashboard list
+                        if ("WAITING".equals(status) || "IN_PROGRESS".equals(status)) {
+                            appointments.add(appt);
+                            if ("WAITING".equals(status)) waitingCount++;
+                        } else if ("COMPLETED".equals(status)) {
+                            completedCount++;
+                        }
+                    }
+                }
+            }
+
+            adapter.notifyDataSetChanged();
+            updateDashboardStats(waitingCount, completedCount);
+        });
+    }
+
+    private void updateDashboardStats(int waitingCount, int completedCount) {
+        TextView queueCount = findViewById(R.id.doctor_queue_count);
+        queueCount.setText(String.valueOf(waitingCount));
+
+        TextView patientsSeen = findViewById(R.id.doctor_patients_seen);
+        patientsSeen.setText(String.valueOf(completedCount));
+
+        TextView avgWait = findViewById(R.id.doctor_avg_wait);
+        avgWait.setText((waitingCount * 5) + " min");
+
+        android.widget.ProgressBar progressBar = findViewById(R.id.doctor_queue_progress);
+        int total = waitingCount + completedCount;
+        if (total > 0) {
+            progressBar.setProgress((int) ((double) completedCount / total * 100));
+        }
     }
 
     private void addDemoPatients() {
@@ -166,5 +176,13 @@ public class DoctorDashboardActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.doctor_queue_count)).setText("3");
         ((TextView) findViewById(R.id.doctor_patients_seen)).setText("8");
         ((TextView) findViewById(R.id.doctor_avg_wait)).setText("14 min");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (queueListener != null) {
+            queueListener.remove();
+        }
     }
 }

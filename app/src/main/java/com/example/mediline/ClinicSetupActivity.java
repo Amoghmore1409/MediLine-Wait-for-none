@@ -10,6 +10,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mediline.model.Clinic;
@@ -33,9 +35,22 @@ public class ClinicSetupActivity extends AppCompatActivity {
     private SessionManager session;
     private String existingClinicId;
     
-    // We will extract coordinates dynamically upon save
+    // We will extract coordinates dynamically upon save or via map picker
     private double currentLat = 0;
     private double currentLng = 0;
+
+    private final ActivityResultLauncher<Intent> mapPickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    currentLat = result.getData().getDoubleExtra("LATITUDE", 0);
+                    currentLng = result.getData().getDoubleExtra("LONGITUDE", 0);
+                    
+                    // Reverse geocode to update address field if needed
+                    updateAddressFromLocation(currentLat, currentLng);
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +80,28 @@ public class ClinicSetupActivity extends AppCompatActivity {
         // Save button
         findViewById(R.id.setup_save_btn).setOnClickListener(v -> handleSaveClick());
 
+        // Map Picker Trigger
+        findViewById(R.id.btn_pick_location).setOnClickListener(v -> {
+            Intent intent = new Intent(this, MapPickerActivity.class);
+            intent.putExtra("LATITUDE", currentLat);
+            intent.putExtra("LONGITUDE", currentLng);
+            mapPickerLauncher.launch(intent);
+        });
+
         // Load existing clinic data if any
         loadExistingClinic();
+    }
+
+    private void updateAddressFromLocation(double lat, double lng) {
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                addressInput.setText(addresses.get(0).getAddressLine(0));
+            }
+        } catch (IOException e) {
+            Log.e("ClinicSetup", "Reverse geocoding failed", e);
+        }
     }
 
     private void loadExistingClinic() {
@@ -115,34 +150,37 @@ public class ClinicSetupActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        // Fetch coordinates in background
-        new Thread(() -> {
-            double lat = currentLat;
-            double lng = currentLng;
-            
-            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-            try {
-                // Incorporate clinic name for better accuracy
-                List<Address> addresses = geocoder.getFromLocationName(name + " " + address, 1);
-                if (addresses != null && !addresses.isEmpty()) {
-                    lat = addresses.get(0).getLatitude();
-                    lng = addresses.get(0).getLongitude();
-                } else {
-                    List<Address> addressFallback = geocoder.getFromLocationName(address, 1);
-                    if (addressFallback != null && !addressFallback.isEmpty()) {
-                        lat = addressFallback.get(0).getLatitude();
-                        lng = addressFallback.get(0).getLongitude();
+        // If we haven't picked a location yet, try to geocode the address
+        if (currentLat == 0 && currentLng == 0) {
+            new Thread(() -> {
+                double lat = 0;
+                double lng = 0;
+                
+                Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+                try {
+                    List<Address> addresses = geocoder.getFromLocationName(name + " " + address, 1);
+                    if (addresses != null && !addresses.isEmpty()) {
+                        lat = addresses.get(0).getLatitude();
+                        lng = addresses.get(0).getLongitude();
+                    } else {
+                        List<Address> addressFallback = geocoder.getFromLocationName(address, 1);
+                        if (addressFallback != null && !addressFallback.isEmpty()) {
+                            lat = addressFallback.get(0).getLatitude();
+                            lng = addressFallback.get(0).getLongitude();
+                        }
                     }
+                } catch (IOException e) {
+                    Log.e("ClinicSetup", "Geocoding failed", e);
                 }
-            } catch (IOException e) {
-                Log.e("ClinicSetup", "Geocoding failed", e);
-            }
 
-            final double finalLat = lat;
-            final double finalLng = lng;
+                final double finalLat = lat;
+                final double finalLng = lng;
 
-            runOnUiThread(() -> saveClinicWithCoordinates(name, address, finalLat, finalLng));
-        }).start();
+                runOnUiThread(() -> saveClinicWithCoordinates(name, address, finalLat, finalLng));
+            }).start();
+        } else {
+            saveClinicWithCoordinates(name, address, currentLat, currentLng);
+        }
     }
 
     private void saveClinicWithCoordinates(String name, String address, double lat, double lng) {
