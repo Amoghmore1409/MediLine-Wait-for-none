@@ -5,6 +5,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,8 +17,6 @@ import com.example.mediline.repository.AppointmentRepository;
 import com.example.mediline.repository.ClinicRepository;
 import com.example.mediline.util.SessionManager;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import com.bumptech.glide.Glide;
 import androidx.activity.result.ActivityResultLauncher;
@@ -48,18 +47,35 @@ public class QueueManagementActivity extends AppCompatActivity {
     private String clinicId;
     private Appointment currentPatient;
     private Uri prescriptionPhotoUri;
+    private String activePatientIdForUpload;
 
     private final ActivityResultLauncher<Uri> takePrescriptionLauncher = registerForActivityResult(
             new ActivityResultContracts.TakePicture(),
             success -> {
-                if (success && currentPatient != null) {
-                    uploadPrescription();
+                String targetId = activePatientIdForUpload != null ? activePatientIdForUpload : 
+                                  (currentPatient != null ? currentPatient.getAppointmentId() : null);
+                if (success && targetId != null && prescriptionPhotoUri != null) {
+                    uploadPrescription(targetId, prescriptionPhotoUri);
+                } else if (!success) {
+                    Toast.makeText(this, "Camera capture cancelled or failed.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Failed to upload: Patient context lost.", Toast.LENGTH_SHORT).show();
                 }
+                activePatientIdForUpload = null; 
             });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        if (savedInstanceState != null) {
+            String uriStr = savedInstanceState.getString("SAVED_URI");
+            if (uriStr != null) {
+                prescriptionPhotoUri = Uri.parse(uriStr);
+            }
+            activePatientIdForUpload = savedInstanceState.getString("SAVED_PATIENT_ID");
+        }
+        
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_queue_management);
 
@@ -107,6 +123,17 @@ public class QueueManagementActivity extends AppCompatActivity {
             } else {
                 loadDemoData();
             }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (prescriptionPhotoUri != null) {
+            outState.putString("SAVED_URI", prescriptionPhotoUri.toString());
+        }
+        if (activePatientIdForUpload != null) {
+            outState.putString("SAVED_PATIENT_ID", activePatientIdForUpload);
         }
     }
 
@@ -196,8 +223,15 @@ public class QueueManagementActivity extends AppCompatActivity {
     }
 
     private void startPrescriptionCapture() {
+        if (currentPatient == null) {
+            Toast.makeText(this, "No active patient to upload prescription for.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        activePatientIdForUpload = currentPatient.getAppointmentId();
         try {
-            File imageFile = File.createTempFile("prescription_", ".jpg", getCacheDir());
+            File imagePath = new File(getCacheDir(), "images");
+            if (!imagePath.exists()) imagePath.mkdirs();
+            File imageFile = File.createTempFile("prescription_", ".jpg", imagePath);
             prescriptionPhotoUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", imageFile);
             takePrescriptionLauncher.launch(prescriptionPhotoUri);
         } catch (IOException e) {
@@ -205,27 +239,40 @@ public class QueueManagementActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadPrescription() {
+    private void uploadPrescription(String targetId, Uri photoUri) {
         ProgressDialog progress = new ProgressDialog(this);
         progress.setMessage("Uploading prescription...");
         progress.setCancelable(false);
         progress.show();
 
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("Images/Prescriptions/" + System.currentTimeMillis() + ".jpg");
-        storageRef.putFile(prescriptionPhotoUri).addOnSuccessListener(taskSnapshot -> {
-            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+        try {
+            // First let's check if the file actually has content
+            java.io.InputStream is = getContentResolver().openInputStream(photoUri);
+            if (is == null) {
                 progress.dismiss();
-                // update current appointment
-                appointmentRepo.updateAppointmentField(currentPatient.getAppointmentId(), "prescriptionUrl", uri.toString(), task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Prescription uploaded successfully!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            });
-        }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Could not open image file.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+            int nRead;
+            byte[] data = new byte[16384];
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            byte[] bytes = buffer.toByteArray();
+            is.close();
+
+            if (bytes.length == 0) {
+                progress.dismiss();
+                Toast.makeText(this, "Image is empty! Please retake.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            com.cloudinary.android.MediaManager.get().upload(bytes).option("folder", "Prescriptions").callback(new com.cloudinary.android.callback.UploadCallback() { @Override public void onStart(String requestId) {} @Override public void onProgress(String requestId, long bytes, long totalBytes) {} @Override public void onSuccess(String requestId, java.util.Map resultData) { String downloadUrl = (String) resultData.get("secure_url"); progress.dismiss(); appointmentRepo.updateAppointmentField(targetId, "prescriptionUrl", downloadUrl, updateTask -> { if (updateTask.isSuccessful()) { Toast.makeText(QueueManagementActivity.this, "Prescription uploaded successfully!", Toast.LENGTH_SHORT).show(); } else { Toast.makeText(QueueManagementActivity.this, "Failed to update Database!", Toast.LENGTH_SHORT).show(); } }); } @Override public void onError(String requestId, com.cloudinary.android.callback.ErrorInfo error) { progress.dismiss(); Toast.makeText(QueueManagementActivity.this, "Upload failed: " + error.getDescription(), Toast.LENGTH_LONG).show(); } @Override public void onReschedule(String requestId, com.cloudinary.android.callback.ErrorInfo error) {} }).dispatch();
+        } catch (Exception ex) {
             progress.dismiss();
-            Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        });
+            Toast.makeText(this, "Failed to read image file: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void advanceQueue() {

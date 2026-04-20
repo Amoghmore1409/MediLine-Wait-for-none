@@ -83,16 +83,7 @@ public class AppointmentRepository {
                 .whereEqualTo("patientId", patientId)
                 .whereEqualTo("clinicId", clinicId)
                 .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    // Filter to only WAITING and IN_PROGRESS status
-                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                        querySnapshot.getDocuments().removeIf(doc -> {
-                            Appointment appt = doc.toObject(Appointment.class);
-                            return appt == null || (!appt.getStatus().equals("WAITING") && !appt.getStatus().equals("IN_PROGRESS"));
-                        });
-                    }
-                    listener.onSuccess(querySnapshot);
-                });
+                .addOnSuccessListener(listener);
     }
 
     public Task<QuerySnapshot> getNextTokenNumber(String clinicId, OnSuccessListener<QuerySnapshot> listener) {

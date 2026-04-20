@@ -187,13 +187,13 @@
                 android:text="@string/nav_bookings" android:textColor="@color/outline"
                 android:textSize="11sp" />
         </LinearLayout>
-        <LinearLayout android:id="@+id/nav_profile" android:layout_width="0dp" android:layout_height="match_parent"
+        <LinearLayout android:id="@+id/nav_more" android:layout_width="0dp" android:layout_height="match_parent"
             android:layout_weight="1" android:gravity="center" android:orientation="vertical"
             android:clickable="true" android:focusable="true">
             <ImageView android:layout_width="24dp" android:layout_height="24dp"
-                android:src="@drawable/ic_person_outline" android:contentDescription="@string/nav_profile" />
+                android:src="@drawable/ic_more" android:contentDescription="@string/nav_more" app:tint="@color/outline" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/nav_profile" android:textColor="@color/outline"
+                android:text="@string/nav_more" android:textColor="@color/outline"
                 android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>

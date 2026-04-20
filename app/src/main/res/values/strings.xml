@@ -166,6 +166,7 @@
     <string name="nav_clinics">Clinics</string>
     <string name="nav_bookings">Appointments</string>
     <string name="nav_profile">Profile</string>
+    <string name="nav_more">More</string>
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_patients">Patients</string>
     <string name="nav_clinic">Clinic</string>

@@ -74,8 +74,8 @@ public class DoctorDashboardActivity extends AppCompatActivity {
         });
 
         // Profile top button and bottom nav - show profile dialog with logout
-        findViewById(R.id.doctor_profile_btn).setOnClickListener(v -> showProfileDialog());
-        findViewById(R.id.doc_nav_profile).setOnClickListener(v -> showProfileDialog());
+        findViewById(R.id.doctor_profile_btn).setOnClickListener(v -> startActivity(new Intent(this, DoctorProfileActivity.class)));
+        findViewById(R.id.doc_nav_profile).setOnClickListener(v -> startActivity(new Intent(this, DoctorProfileActivity.class)));
 
         // Initial load
         loadDashboardData();

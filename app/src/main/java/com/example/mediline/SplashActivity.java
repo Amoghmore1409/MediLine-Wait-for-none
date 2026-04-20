@@ -24,6 +24,16 @@ public class SplashActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
 
+        try {
+            java.util.Map<String, String> config = new java.util.HashMap<>();
+            config.put("cloud_name", "db2eubwvd");
+            config.put("api_key", "517981978921165");
+            config.put("api_secret", "PFNMwGtlMvQSJnY6NXqp_FbjyEI");
+            com.cloudinary.android.MediaManager.init(this, config);
+        } catch (Exception e) {
+            // MediaManager is already initialized
+        }
+
         // Handle edge-to-edge insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splash_root), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
