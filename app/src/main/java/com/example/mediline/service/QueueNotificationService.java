@@ -90,6 +90,12 @@ public class QueueNotificationService extends Service {
         // 2. Listen to the specific appointment for prescription updates
         prescriptionListener = appointmentRepo.getAppointmentRef(appointmentId).addSnapshotListener((snapshot, error) -> {
             if (error != null || snapshot == null) return;
+            
+            // If the appointment document is deleted (cancelled by user)
+            if (!snapshot.exists()) {
+                stopSelf();
+                return;
+            }
 
             Appointment appt = snapshot.toObject(Appointment.class);
             if (appt != null) {

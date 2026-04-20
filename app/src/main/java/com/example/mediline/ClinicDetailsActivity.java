@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,8 +21,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.FileProvider;
@@ -63,6 +62,15 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        if (savedInstanceState != null) {
+            String uriStr = savedInstanceState.getString("SAVED_PHOTO_URI");
+            if (uriStr != null) {
+                currentPhotoUri = Uri.parse(uriStr);
+            }
+            uploadedMedicalRecordUrl = savedInstanceState.getString("SAVED_UPLOAD_URL");
+        }
+        
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_clinic_details);
 
@@ -117,6 +125,10 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
 
                 if (querySnapshot != null) {
                     List<Appointment> queue = querySnapshot.toObjects(Appointment.class);
+                    // Filter to WAITING and sort locally
+                    queue.removeIf(appt -> !"WAITING".equals(appt.getStatus()));
+                    queue.sort(java.util.Comparator.comparingInt(Appointment::getTokenNumber));
+                    
                     int currentServing = queue.isEmpty() ? 0 : queue.get(0).getTokenNumber();
                     queueNumber.setText("#" + currentServing);
                     estWait.setText("Est. wait: " + (queue.size() * 5) + " mins");
@@ -183,6 +195,17 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (currentPhotoUri != null) {
+            outState.putString("SAVED_PHOTO_URI", currentPhotoUri.toString());
+        }
+        if (uploadedMedicalRecordUrl != null) {
+            outState.putString("SAVED_UPLOAD_URL", uploadedMedicalRecordUrl);
+        }
+    }
+
     private void bookAppointment() {
         if (clinicId == null) {
             UiUtils.showErrorDialog(this, "Error", "Clinic ID not found");
@@ -200,15 +223,23 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
         // Check if patient already has an active appointment at this clinic
         appointmentRepo.getPatientActiveAppointmentAtClinic(patientId, clinicId, existingAppointments -> {
             if (existingAppointments != null && !existingAppointments.isEmpty()) {
-                // Patient already has an active appointment
-                Appointment existingAppt = existingAppointments.getDocuments().get(0).toObject(Appointment.class);
-                if (existingAppt != null) {
+                Appointment activeAppt = null;
+                for (var doc : existingAppointments.getDocuments()) {
+                    Appointment appt = doc.toObject(Appointment.class);
+                    if (appt != null && ("WAITING".equals(appt.getStatus()) || "IN_PROGRESS".equals(appt.getStatus()))) {
+                        activeAppt = appt;
+                        break;
+                    }
+                }
+                
+                if (activeAppt != null) {
+                    // Patient already has an active appointment
                     UiUtils.showWarningDialog(this,
                         "Active Appointment",
-                        "You already have an active appointment (Token #" + existingAppt.getTokenNumber() +
+                        "You already have an active appointment (Token #" + activeAppt.getTokenNumber() +
                         "). Complete it before booking again.");
+                    return;
                 }
-                return;
             }
 
             // No active appointment, proceed with booking
@@ -226,17 +257,22 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
             progress.setCancelable(false);
             progress.show();
 
-            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("Images/Records/" + System.currentTimeMillis() + ".jpg");
-            storageRef.putFile(currentPhotoUri).addOnSuccessListener(taskSnapshot -> {
-                storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                    uploadedMedicalRecordUrl = uri.toString();
-                    progress.dismiss();
-                    finalizeBooking(patientId, patientName);
-                });
-            }).addOnFailureListener(e -> {
+            try {
+                java.io.InputStream is = getContentResolver().openInputStream(currentPhotoUri);
+                java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+                int nRead;
+                byte[] data = new byte[16384];
+                while ((nRead = is.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                }
+                byte[] bytes = buffer.toByteArray();
+                is.close();
+
+                com.cloudinary.android.MediaManager.get().upload(bytes).option("folder", "Records").callback(new com.cloudinary.android.callback.UploadCallback() { @Override public void onStart(String requestId) {} @Override public void onProgress(String requestId, long bytes, long totalBytes) {} @Override public void onSuccess(String requestId, java.util.Map resultData) { uploadedMedicalRecordUrl = (String) resultData.get("secure_url"); progress.dismiss(); finalizeBooking(patientId, patientName); } @Override public void onError(String requestId, com.cloudinary.android.callback.ErrorInfo error) { progress.dismiss(); com.example.mediline.util.UiUtils.showErrorDialog(ClinicDetailsActivity.this, "Upload Failed", "Failed to upload medical record: " + error.getDescription()); } @Override public void onReschedule(String requestId, com.cloudinary.android.callback.ErrorInfo error) {} }).dispatch();
+            } catch (Exception ex) {
                 progress.dismiss();
-                UiUtils.showErrorDialog(this, "Upload Failed", "Failed to upload medical record: " + e.getMessage());
-            });
+                UiUtils.showErrorDialog(this, "File Error", "Failed to read image file: " + ex.getMessage());
+            }
         } else {
             finalizeBooking(patientId, patientName);
         }

@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".MediLineApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -41,11 +42,13 @@
 
         <!-- Patient Flow -->
         <activity android:name=".PatientHomeActivity" android:exported="false" />
+        <activity android:name=".PatientProfileActivity" android:exported="false" />
         <activity android:name=".ClinicDetailsActivity" android:exported="false" />
         <activity android:name=".QueueStatusActivity" android:exported="false" />
 
         <!-- Doctor Flow -->
         <activity android:name=".DoctorDashboardActivity" android:exported="false" />
+        <activity android:name=".DoctorProfileActivity" android:exported="false" />
         <activity android:name=".QueueManagementActivity" android:exported="false" />
         <activity android:name=".ClinicSetupActivity" android:exported="false" />
         <activity android:name=".MapPickerActivity" android:exported="false" />

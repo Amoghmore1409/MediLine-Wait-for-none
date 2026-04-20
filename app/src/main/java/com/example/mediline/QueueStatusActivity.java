@@ -71,9 +71,12 @@ public class QueueStatusActivity extends AppCompatActivity {
                 .setTitle("Cancel Appointment")
                 .setMessage("Are you sure you want to cancel your appointment? This action cannot be undone.")
                 .setPositiveButton("Yes, Cancel", (dialog, which) -> {
-                    appointmentRepo.updateAppointmentStatus(myAppointmentId, "CANCELLED", task -> {
+                    appointmentRepo.deleteAppointment(myAppointmentId, task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(this, "Appointment cancelled successfully.", Toast.LENGTH_SHORT).show();
+                            
+                            // Inform any tracking service to stop (handled by service listening to null object)
+                            // Finish the activity
                             finish();
                         } else {
                             UiUtils.showErrorDialog(this, "Error", "Failed to cancel appointment.");
@@ -90,6 +93,7 @@ public class QueueStatusActivity extends AppCompatActivity {
 
             int currentServing = 0;
             int patientsAhead = 0;
+            int lowestWaiting = Integer.MAX_VALUE;
 
             for (var doc : snapshots.getDocuments()) {
                 Appointment appt = doc.toObject(Appointment.class);
@@ -103,15 +107,19 @@ public class QueueStatusActivity extends AppCompatActivity {
 
                     if ("IN_PROGRESS".equals(appt.getStatus())) {
                         currentServing = appt.getTokenNumber();
-                    } else if ("WAITING".equals(appt.getStatus()) && appt.getTokenNumber() < myTokenNumber) {
-                        patientsAhead++;
+                    } else if ("WAITING".equals(appt.getStatus())) {
+                        if (appt.getTokenNumber() < lowestWaiting) {
+                            lowestWaiting = appt.getTokenNumber();
+                        }
+                        if (appt.getTokenNumber() < myTokenNumber) {
+                            patientsAhead++;
+                        }
                     }
                 }
             }
 
-            if (currentServing == 0 && !snapshots.isEmpty()) {
-                Appointment firstWait = snapshots.getDocuments().get(0).toObject(Appointment.class);
-                if (firstWait != null) currentServing = firstWait.getTokenNumber();
+            if (currentServing == 0 && lowestWaiting != Integer.MAX_VALUE) {
+                currentServing = lowestWaiting;
             }
 
             // Update UI
