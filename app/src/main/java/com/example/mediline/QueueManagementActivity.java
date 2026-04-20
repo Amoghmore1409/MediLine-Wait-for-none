@@ -135,6 +135,9 @@ public class QueueManagementActivity extends AppCompatActivity {
                 }
             }
 
+            // Sort waiting list by token number locally
+            waitingAppointments.sort(java.util.Comparator.comparingInt(Appointment::getTokenNumber));
+
             adapter.notifyDataSetChanged();
             updateUI(completedCount, totalCount);
         });

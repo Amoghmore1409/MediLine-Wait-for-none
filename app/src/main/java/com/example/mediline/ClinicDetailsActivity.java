@@ -117,6 +117,10 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
 
                 if (querySnapshot != null) {
                     List<Appointment> queue = querySnapshot.toObjects(Appointment.class);
+                    // Filter to WAITING and sort locally
+                    queue.removeIf(appt -> !"WAITING".equals(appt.getStatus()));
+                    queue.sort(java.util.Comparator.comparingInt(Appointment::getTokenNumber));
+                    
                     int currentServing = queue.isEmpty() ? 0 : queue.get(0).getTokenNumber();
                     queueNumber.setText("#" + currentServing);
                     estWait.setText("Est. wait: " + (queue.size() * 5) + " mins");

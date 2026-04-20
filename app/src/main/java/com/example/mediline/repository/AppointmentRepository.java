@@ -30,7 +30,6 @@ public class AppointmentRepository {
         db.collection("appointments")
                 .whereEqualTo("clinicId", clinicId)
                 .whereEqualTo("status", "WAITING")
-                .orderBy("tokenNumber", Query.Direction.ASCENDING)
                 .get()
                 .addOnSuccessListener(listener);
     }
@@ -38,7 +37,6 @@ public class AppointmentRepository {
     public void getAllAppointmentsForClinic(String clinicId, OnSuccessListener<QuerySnapshot> listener) {
         db.collection("appointments")
                 .whereEqualTo("clinicId", clinicId)
-                .orderBy("tokenNumber", Query.Direction.ASCENDING)
                 .get()
                 .addOnSuccessListener(listener);
     }
@@ -46,7 +44,6 @@ public class AppointmentRepository {
     public ListenerRegistration listenToQueue(String clinicId, EventListener<QuerySnapshot> listener) {
         return db.collection("appointments")
                 .whereEqualTo("clinicId", clinicId)
-                .orderBy("tokenNumber", Query.Direction.ASCENDING)
                 .addSnapshotListener(listener);
     }
 
@@ -54,6 +51,10 @@ public class AppointmentRepository {
         Map<String, Object> updates = new HashMap<>();
         updates.put("status", status);
         db.collection("appointments").document(appointmentId).update(updates).addOnCompleteListener(listener);
+    }
+
+    public void deleteAppointment(String appointmentId, OnCompleteListener<Void> listener) {
+        db.collection("appointments").document(appointmentId).delete().addOnCompleteListener(listener);
     }
 
     public void updateAppointmentField(String appointmentId, String field, Object value, OnCompleteListener<Void> listener) {

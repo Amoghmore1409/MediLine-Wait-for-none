@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/doctor_dash_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -142,7 +143,7 @@
         <LinearLayout android:layout_width="0dp" android:layout_height="match_parent"
             android:layout_weight="1" android:gravity="center" android:orientation="vertical">
             <ImageView android:layout_width="24dp" android:layout_height="24dp"
-                android:src="@drawable/ic_medical_services_white"
+                android:src="@drawable/ic_medical_services_white" app:tint="@color/primary"
                 android:contentDescription="@string/nav_dashboard" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="@string/nav_dashboard" android:textColor="@color/primary"
@@ -162,7 +163,7 @@
             android:layout_height="match_parent" android:layout_weight="1" android:gravity="center"
             android:orientation="vertical" android:clickable="true" android:focusable="true">
             <ImageView android:layout_width="24dp" android:layout_height="24dp"
-                android:src="@drawable/ic_medical_services_white"
+                android:src="@drawable/ic_clinic" app:tint="@color/outline"
                 android:contentDescription="@string/nav_clinic" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="@string/nav_clinic" android:textColor="@color/outline"

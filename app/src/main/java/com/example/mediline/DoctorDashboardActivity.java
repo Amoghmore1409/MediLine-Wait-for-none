@@ -142,6 +142,9 @@ public class DoctorDashboardActivity extends AppCompatActivity {
                         }
                     }
                 }
+                
+                // Sort by token number
+                appointments.sort(java.util.Comparator.comparingInt(Appointment::getTokenNumber));
             }
 
             adapter.notifyDataSetChanged();

@@ -29,12 +29,19 @@ import com.google.android.gms.location.LocationServices;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import android.widget.Button;
+import android.widget.TextView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
 
 public class PatientHomeActivity extends AppCompatActivity implements ClinicAdapter.OnClinicClickListener {
 
     private RecyclerView clinicList;
     private ClinicAdapter adapter;
     private List<Clinic> clinics = new ArrayList<>();
+    private List<Clinic> allClinics = new ArrayList<>();
     private ClinicRepository clinicRepo;
     private AppointmentRepository appointmentRepo;
     private SessionManager session;
@@ -42,6 +49,8 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
     private Location currentUserLocation;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1002;
+    private String selectedCategory = "All";
+    private String currentSearchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +69,8 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        setupSearch();
+        setupCategories();
         setupBottomNav();
         loadClinics();
         checkNotificationPermission();
@@ -96,6 +107,85 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
         serviceIntent.putExtra("APPOINTMENT_ID", active.getAppointmentId());
         serviceIntent.putExtra("TOKEN_NUMBER", active.getTokenNumber());
         startService(serviceIntent);
+    }
+
+    private void setupSearch() {
+        EditText searchInput = findViewById(R.id.patient_search);
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                currentSearchQuery = s.toString().toLowerCase().trim();
+                filterClinicsByCategory();
+            }
+        });
+    }
+
+    private void setupCategories() {
+        android.widget.TextView all = findViewById(R.id.category_all);
+        android.widget.TextView gen = findViewById(R.id.category_general);
+        android.widget.TextView ped = findViewById(R.id.category_pediatrics);
+        android.widget.TextView den = findViewById(R.id.category_dentistry);
+        android.widget.TextView car = findViewById(R.id.category_cardiology);
+        android.widget.TextView der = findViewById(R.id.category_dermatology);
+        android.widget.TextView neu = findViewById(R.id.category_neurology);
+        android.widget.TextView ort = findViewById(R.id.category_orthopedics);
+
+        android.widget.TextView[] categories = {all, gen, ped, den, car, der, neu, ort};
+
+        for (android.widget.TextView tv : categories) {
+            tv.setOnClickListener(v -> {
+                // reset all to inactive
+                for (android.widget.TextView cat : categories) {
+                    cat.setBackgroundResource(R.drawable.bg_category_inactive);
+                    cat.setTextColor(getResources().getColor(R.color.on_surface_variant, getTheme()));
+                }
+                
+                // set current to active
+                tv.setBackgroundResource(R.drawable.bg_category_active);
+                tv.setTextColor(getResources().getColor(R.color.white, getTheme()));
+                
+                selectedCategory = tv.getText().toString();
+                filterClinicsByCategory();
+            });
+        }
+    }
+
+    private void filterClinicsByCategory() {
+        clinics.clear();
+        for (Clinic c : allClinics) {
+            String spec = c.getSpecialization() != null ? c.getSpecialization().toLowerCase() : "";
+            String name = c.getName() != null ? c.getName().toLowerCase() : "";
+            String address = c.getAddress() != null ? c.getAddress().toLowerCase() : "";
+            String cat = selectedCategory.toLowerCase();
+            
+            boolean matchesCategory = false;
+            if ("all".equals(cat)) {
+                matchesCategory = true;
+            } else if ("general".equals(cat)) {
+                // "General" matches General Practice, General Care, General.
+                if (spec.contains("general") || spec.isEmpty()) {
+                    matchesCategory = true;
+                }
+            } else if (spec.contains(cat)) {
+                matchesCategory = true;
+            }
+
+            boolean matchesSearch = currentSearchQuery.isEmpty() || 
+                                    name.contains(currentSearchQuery) || 
+                                    address.contains(currentSearchQuery) || 
+                                    spec.contains(currentSearchQuery);
+
+            if (matchesCategory && matchesSearch) {
+                clinics.add(c);
+            }
+        }
+        adapter.notifyDataSetChanged();
     }
 
     private void setupBottomNav() {
@@ -137,13 +227,9 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
             });
         });
 
-        // Bookings tab — opens clinic details (for now, navigate to first clinic)
+        // Bookings tab — show the appointments dialog instead of first clinic
         findViewById(R.id.nav_bookings).setOnClickListener(v -> {
-            if (!clinics.isEmpty()) {
-                onClinicClick(clinics.get(0));
-            } else {
-                Toast.makeText(this, "No bookings yet", Toast.LENGTH_SHORT).show();
-            }
+            showAppointmentsDialog();
         });
 
         // Profile tab — logout functionality
@@ -167,35 +253,41 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
 
     private void loadClinics() {
         clinicRepo.getAllClinics(querySnapshot -> {
-            clinics.clear();
+            allClinics.clear();
             if (querySnapshot != null && !querySnapshot.isEmpty()) {
                 for (var doc : querySnapshot.getDocuments()) {
                     Clinic clinic = doc.toObject(Clinic.class);
                     if (clinic != null) {
                         clinic.setClinicId(doc.getId());
-                        clinics.add(clinic);
+                        allClinics.add(clinic);
                     }
                 }
             }
 
             // Add demo data if no clinics in Firestore
-            if (clinics.isEmpty()) {
+            if (allClinics.isEmpty()) {
                 Clinic demo1 = new Clinic("", "MedLine Central Hospital", "0.8 miles away • Downtown",
                         0, 0, "08:00", "20:00", 120, "Cardiology");
                 demo1.setClinicId("demo1");
-                clinics.add(demo1);
+                allClinics.add(demo1);
 
                 Clinic demo2 = new Clinic("", "St. Mary Pediatrics", "1.2 miles • General Care",
                         0, 0, "09:00", "18:00", 80, "Pediatrics");
                 demo2.setClinicId("demo2");
-                clinics.add(demo2);
+                allClinics.add(demo2);
 
                 Clinic demo3 = new Clinic("", "Wellness First Clinic", "2.5 miles • Specialist",
                         0, 0, "08:00", "17:00", 95, "General Practice");
                 demo3.setClinicId("demo3");
-                clinics.add(demo3);
+                allClinics.add(demo3);
+
+                Clinic demo4 = new Clinic("", "Bright Smiles Dental", "3.0 miles • Cosmetic",
+                        0, 0, "09:00", "19:00", 50, "Dentistry");
+                demo4.setClinicId("demo4");
+                allClinics.add(demo4);
             }
-            adapter.notifyDataSetChanged();
+            
+            filterClinicsByCategory();
             
             checkLocationPermission();
         });
@@ -207,6 +299,75 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
         } else {
             fetchLocationAndSort();
         }
+    }
+
+    private void showAppointmentsDialog() {
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        android.view.View view = getLayoutInflater().inflate(R.layout.dialog_patient_appointments, null);
+        dialog.setContentView(view);
+        android.widget.LinearLayout container = view.findViewById(R.id.appointments_container);
+
+        appointmentRepo.getPatientAppointments(session.getUserId(), querySnapshot -> {
+            if (querySnapshot == null || querySnapshot.isEmpty()) {
+                TextView empty = new TextView(this);
+                empty.setText("No appointments booked yet.");
+                empty.setTextColor(getColor(R.color.on_surface_variant));
+                container.addView(empty);
+                dialog.show();
+                return;
+            }
+
+            for (var doc : querySnapshot.getDocuments()) {
+                Appointment appt = doc.toObject(Appointment.class);
+                if (appt != null) {
+                    appt.setAppointmentId(doc.getId());
+
+                    android.view.View item = getLayoutInflater().inflate(R.layout.item_patient_appointment, container, false);
+                    TextView name = item.findViewById(R.id.apt_clinic_name);
+                    TextView details = item.findViewById(R.id.apt_details);
+                    Button cancelBtn = item.findViewById(R.id.apt_btn_cancel);
+
+                    name.setText("Loading...");
+                    details.setText("Status: " + appt.getStatus() + "\nToken: #" + appt.getTokenNumber());
+
+                    if (appt.getClinicId() != null) {
+                        clinicRepo.getClinic(appt.getClinicId(), clinicDoc -> {
+                            String clinicName = "Unknown Clinic";
+                            if (clinicDoc != null && clinicDoc.exists() && clinicDoc.getString("name") != null) {
+                                clinicName = clinicDoc.getString("name");
+                            }
+                            name.setText(clinicName);
+                        });
+                    } else {
+                        name.setText("Unknown Clinic");
+                    }
+
+                    if ("WAITING".equals(appt.getStatus())) {
+                        cancelBtn.setVisibility(android.view.View.VISIBLE);
+                        cancelBtn.setOnClickListener(v -> {
+                            new androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Cancel Appointment")
+                                    .setMessage("Are you sure you want to cancel this booking?")
+                                    .setPositiveButton("Yes, Cancel", (d, which) -> {
+                                        appointmentRepo.deleteAppointment(appt.getAppointmentId(), task -> {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(this, "Appointment cancelled", Toast.LENGTH_SHORT).show();
+                                                dialog.dismiss();
+                                                showAppointmentsDialog(); // Refresh
+                                            } else {
+                                                Toast.makeText(this, "Failed to cancel", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    })
+                                    .setNegativeButton("No", null)
+                                    .show();
+                        });
+                    }
+                    container.addView(item);
+                }
+            }
+            dialog.show();
+        });
     }
 
     private void fetchLocationAndSort() {
