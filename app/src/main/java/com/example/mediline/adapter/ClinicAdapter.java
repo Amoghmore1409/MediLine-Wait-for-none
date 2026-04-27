@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mediline.R;
 import com.example.mediline.R;
 import com.example.mediline.model.Clinic;
+import com.example.mediline.repository.AppointmentRepository;
 
 import android.location.Location;
 
@@ -26,10 +27,12 @@ public class ClinicAdapter extends RecyclerView.Adapter<ClinicAdapter.ClinicView
     private final List<Clinic> clinics;
     private final OnClinicClickListener listener;
     private Location patientLocation;
+    private final AppointmentRepository appointmentRepo;
 
     public ClinicAdapter(List<Clinic> clinics, OnClinicClickListener listener) {
         this.clinics = clinics;
         this.listener = listener;
+        this.appointmentRepo = new AppointmentRepository();
     }
 
     public void setPatientLocation(Location location) {
@@ -60,7 +63,23 @@ public class ClinicAdapter extends RecyclerView.Adapter<ClinicAdapter.ClinicView
         }
         
         holder.rating.setText("★ 4.8");
-        holder.waitTime.setText("~15 mins");
+        holder.waitTime.setText("Calculating...");
+
+        appointmentRepo.getQueueForClinic(clinic.getClinicId(), querySnapshot -> {
+            if (querySnapshot != null) {
+                int queueSize = querySnapshot.size();
+                int baseAvgTime = clinic.getAverageVisitTimeMinutes() > 0 ? clinic.getAverageVisitTimeMinutes() : 15;
+                int totalWaitMins = queueSize * baseAvgTime;
+                
+                if (queueSize == 0) {
+                    holder.waitTime.setText("No wait time");
+                } else {
+                    holder.waitTime.setText("~" + totalWaitMins + " mins wait");
+                }
+            } else {
+                holder.waitTime.setText("Unknown wait");
+            }
+        });
 
         holder.itemView.setOnClickListener(v -> listener.onClinicClick(clinic));
         holder.bookBtn.setOnClickListener(v -> listener.onBookClick(clinic));

@@ -11,6 +11,8 @@ public class User {
     private String phone;
     private String email;
     private String role; // "DOCTOR" or "PATIENT"
+    private String profileImageUrl;
+    private String coverImageUrl;
     @ServerTimestamp
     private Date createdAt;
     private boolean isActive;
@@ -32,6 +34,10 @@ public class User {
     public void setEmail(String email) { this.email = email; }
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+    public String getProfileImageUrl() { return profileImageUrl; }
+    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+    public String getCoverImageUrl() { return coverImageUrl; }
+    public void setCoverImageUrl(String coverImageUrl) { this.coverImageUrl = coverImageUrl; }
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
     public boolean isActive() { return isActive; }

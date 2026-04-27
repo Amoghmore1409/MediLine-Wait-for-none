@@ -28,7 +28,7 @@ import java.util.Locale;
 
 public class ClinicSetupActivity extends AppCompatActivity {
 
-    private EditText nameInput, feeInput, addressInput, openTimeInput, closeTimeInput;
+    private EditText nameInput, feeInput, addressInput, openTimeInput, closeTimeInput, averageTimeInput;
     private Spinner specialtySpinner;
     private ProgressBar progressBar;
     private ClinicRepository clinicRepo;
@@ -66,6 +66,7 @@ public class ClinicSetupActivity extends AppCompatActivity {
         addressInput = findViewById(R.id.setup_address);
         openTimeInput = findViewById(R.id.setup_open_time);
         closeTimeInput = findViewById(R.id.setup_close_time);
+        averageTimeInput = findViewById(R.id.setup_average_time);
         specialtySpinner = findViewById(R.id.setup_specialty);
         progressBar = findViewById(R.id.setup_progress);
 
@@ -120,6 +121,12 @@ public class ClinicSetupActivity extends AppCompatActivity {
                     feeInput.setText(String.valueOf((int) clinic.getConsultationFee()));
                     openTimeInput.setText(clinic.getOpeningTime());
                     closeTimeInput.setText(clinic.getClosingTime());
+                    
+                    if (clinic.getAverageVisitTimeMinutes() > 0) {
+                        averageTimeInput.setText(String.valueOf(clinic.getAverageVisitTimeMinutes()));
+                    } else {
+                        averageTimeInput.setText("15");
+                    }
 
                     currentLat = clinic.getLatitude();
                     currentLng = clinic.getLongitude();
@@ -185,15 +192,19 @@ public class ClinicSetupActivity extends AppCompatActivity {
 
     private void saveClinicWithCoordinates(String name, String address, double lat, double lng) {
         String feeStr = feeInput.getText().toString().trim();
+        String avgTimeStr = averageTimeInput.getText().toString().trim();
         String openTime = openTimeInput.getText().toString().trim();
         String closeTime = closeTimeInput.getText().toString().trim();
         String specialty = specialtySpinner.getSelectedItem().toString();
 
         double fee = 0;
         try { fee = Double.parseDouble(feeStr); } catch (NumberFormatException ignored) {}
+        
+        int avgTime = 15;
+        try { avgTime = Integer.parseInt(avgTimeStr); } catch (NumberFormatException ignored) {}
 
         String userId = session.getUserId();
-        Clinic clinic = new Clinic(userId, name, address, lat, lng, openTime, closeTime, fee, specialty);
+        Clinic clinic = new Clinic(userId, name, address, lat, lng, openTime, closeTime, fee, specialty, avgTime);
 
         if (existingClinicId != null) {
             // Update existing
