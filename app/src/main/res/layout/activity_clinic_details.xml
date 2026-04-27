@@ -203,29 +203,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Upload Record Area -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp" android:orientation="vertical">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium" android:text="Medical Records (Optional)"
-                android:textColor="@color/on_surface" android:textSize="16sp" />
-            
-            <ImageView android:id="@+id/upload_record_preview"
-                android:layout_width="match_parent" android:layout_height="200dp"
-                android:layout_marginTop="8dp" android:scaleType="centerCrop"
-                android:visibility="gone" android:background="@drawable/bg_input_field" />
-
-            <LinearLayout android:id="@+id/btn_upload_record"
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" android:gravity="center"
-                android:orientation="horizontal" android:background="@drawable/bg_role_card"
-                android:padding="12dp" android:clickable="true" android:focusable="true">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Take Photo of Record" android:textColor="@color/primary"
-                    android:textStyle="bold" android:textSize="14sp" />
-            </LinearLayout>
-        </LinearLayout>
 
         <!-- Book Appointment CTA -->
         <FrameLayout android:id="@+id/clinic_book_btn"
