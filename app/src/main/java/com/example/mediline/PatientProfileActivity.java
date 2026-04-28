@@ -64,6 +64,8 @@ public class PatientProfileActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> finish());
 
         tvName = findViewById(R.id.tv_profile_name);
+        ImageView btnEditName = findViewById(R.id.btn_edit_name);
+        btnEditName.setOnClickListener(v -> showEditNameDialog());
         etEmail = findViewById(R.id.et_profile_email);
         etPhone = findViewById(R.id.et_profile_phone);
         
@@ -101,6 +103,48 @@ public class PatientProfileActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    private void showEditNameDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Update Name");
+
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+        input.setText(session.getUserName());
+        builder.setView(input);
+
+        builder.setPositiveButton("Update", (dialog, which) -> {
+            String newName = input.getText().toString().trim();
+            if (!android.text.TextUtils.isEmpty(newName)) {
+                updateName(newName);
+            } else {
+                Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void updateName(String newName) {
+        String patientId = session.getUserId();
+        if (patientId == null) return;
+
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Updating name...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        userRepo.updateUserField(patientId, "name", newName, task -> {
+            progressDialog.dismiss();
+            if (task.isSuccessful()) {
+                session.updateUserName(newName);
+                tvName.setText(newName);
+                Toast.makeText(this, "Name updated successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to update name", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void removeImage() {

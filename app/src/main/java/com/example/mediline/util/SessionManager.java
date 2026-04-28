@@ -44,6 +44,11 @@ public class SessionManager {
         return prefs.getString(KEY_USER_NAME, "");
     }
 
+    public void updateUserName(String name) {
+        editor.putString(KEY_USER_NAME, name);
+        editor.apply();
+    }
+
     public String getUserEmail() {
         return prefs.getString(KEY_USER_EMAIL, "");
     }
