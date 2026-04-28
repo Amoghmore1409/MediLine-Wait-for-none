@@ -94,7 +94,7 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
         doctorName.setText("Dr. Specialist, MD");
         doctorSpec.setText(specialty != null ? specialty + " • Experienced" : "General Practice");
         doctorDesc.setText("Specializing in advanced diagnostics and patient care. Leading the clinical research division.");
-        feeView.setText(String.format("$%.0f", fee));
+        feeView.setText(String.format("₹%.0f", fee));
         nextSlot.setText("Today");
         hoursWeekday.setText((openTime != null ? openTime : "08:00") + " — " + (closeTime != null ? closeTime : "17:00"));
 

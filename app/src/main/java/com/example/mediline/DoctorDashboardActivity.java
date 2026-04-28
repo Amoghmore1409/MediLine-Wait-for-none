@@ -9,10 +9,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.mediline.adapter.PatientAdapter;
 import com.example.mediline.model.Appointment;
+import com.example.mediline.model.User;
 import com.example.mediline.repository.AppointmentRepository;
 import com.example.mediline.repository.ClinicRepository;
+import com.example.mediline.repository.UserRepository;
 import com.example.mediline.util.SessionManager;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -26,9 +29,10 @@ public class DoctorDashboardActivity extends AppCompatActivity {
 
     private RecyclerView patientList;
     private PatientAdapter adapter;
-    private List<Appointment> appointments = new ArrayList<>();
+    private final List<Appointment> appointments = new ArrayList<>();
     private AppointmentRepository appointmentRepo;
     private ClinicRepository clinicRepo;
+    private UserRepository userRepo;
     private SessionManager session;
     private String clinicId;
     private ListenerRegistration queueListener;
@@ -41,6 +45,7 @@ public class DoctorDashboardActivity extends AppCompatActivity {
 
         appointmentRepo = new AppointmentRepository();
         clinicRepo = new ClinicRepository();
+        userRepo = new UserRepository();
         session = new SessionManager(this);
 
         // Date display
@@ -69,9 +74,7 @@ public class DoctorDashboardActivity extends AppCompatActivity {
         });
 
         // Bottom nav - Clinic
-        findViewById(R.id.doc_nav_clinic).setOnClickListener(v -> {
-            startActivity(new Intent(this, ClinicSetupActivity.class));
-        });
+        findViewById(R.id.doc_nav_clinic).setOnClickListener(v -> startActivity(new Intent(this, ClinicSetupActivity.class)));
 
         // Profile top button and bottom nav - show profile dialog with logout
         findViewById(R.id.doctor_profile_btn).setOnClickListener(v -> startActivity(new Intent(this, DoctorProfileActivity.class)));
@@ -179,6 +182,25 @@ public class DoctorDashboardActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.doctor_queue_count)).setText("3");
         ((TextView) findViewById(R.id.doctor_patients_seen)).setText("8");
         ((TextView) findViewById(R.id.doctor_avg_wait)).setText("14 min");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String userId = session.getUserId();
+        if (userId != null) {
+            userRepo.getUser(userId, documentSnapshot -> {
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    User user = documentSnapshot.toObject(User.class);
+                    android.widget.ImageView profileImg = findViewById(R.id.doctor_top_profile_img);
+                    if (user != null && user.getProfileImageUrl() != null) {
+                        Glide.with(this).load(user.getProfileImageUrl()).centerCrop().into(profileImg);
+                    } else {
+                        profileImg.setImageResource(R.drawable.ic_person_outline);
+                    }
+                }
+            });
+        }
     }
 
     @Override

@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import com.example.mediline.repository.AppointmentRepository;
 import com.example.mediline.model.Appointment;
+import com.example.mediline.model.User;
+import com.example.mediline.repository.UserRepository;
 import com.example.mediline.service.QueueNotificationService;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -49,6 +51,7 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
     private List<Clinic> allClinics = new ArrayList<>();
     private ClinicRepository clinicRepo;
     private AppointmentRepository appointmentRepo;
+    private UserRepository userRepo;
     private SessionManager session;
     private FusedLocationProviderClient fusedLocationClient;
     private Location currentUserLocation;
@@ -65,6 +68,7 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
 
         clinicRepo = new ClinicRepository();
         appointmentRepo = new AppointmentRepository();
+        userRepo = new UserRepository();
         session = new SessionManager(this);
 
         clinicList = findViewById(R.id.patient_clinic_list);
@@ -73,6 +77,9 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
         clinicList.setAdapter(adapter);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        findViewById(R.id.patient_profile_btn).setOnClickListener(v -> 
+                startActivity(new Intent(this, PatientProfileActivity.class)));
 
         setupSearch();
         setupCategories();
@@ -495,5 +502,24 @@ public class PatientHomeActivity extends AppCompatActivity implements ClinicAdap
     @Override
     public void onBookClick(Clinic clinic) {
         onClinicClick(clinic); // Same flow — go to details then book
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String userId = session.getUserId();
+        if (userId != null) {
+            userRepo.getUser(userId, documentSnapshot -> {
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    User user = documentSnapshot.toObject(User.class);
+                    android.widget.ImageView profileImg = findViewById(R.id.patient_top_profile_img);
+                    if (user != null && user.getProfileImageUrl() != null) {
+                        Glide.with(this).load(user.getProfileImageUrl()).centerCrop().into(profileImg);
+                    } else {
+                        profileImg.setImageResource(R.drawable.ic_person_outline);
+                    }
+                }
+            });
+        }
     }
 }

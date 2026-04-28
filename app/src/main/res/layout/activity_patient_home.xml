@@ -30,12 +30,22 @@
                         android:text="@string/brand_name" android:textColor="@color/primary"
                         android:textSize="18sp" android:textStyle="bold|italic" />
                 </LinearLayout>
-                <FrameLayout android:layout_width="40dp" android:layout_height="40dp"
-                    android:background="@drawable/bg_profile_circle">
-                    <ImageView android:layout_width="24dp" android:layout_height="24dp"
-                        android:layout_gravity="center" android:src="@drawable/ic_person_outline"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/patient_profile_btn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/surface_container_high">
+                    <ImageView 
+                        android:id="@+id/patient_top_profile_img"
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_person_outline"
                         android:contentDescription="@string/nav_profile" />
-                </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <!-- Hero Search Section -->
