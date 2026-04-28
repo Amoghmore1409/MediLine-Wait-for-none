@@ -44,31 +44,14 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
     private ListenerRegistration queueListener;
     private GoogleMap mMap;
 
-    private Uri currentPhotoUri;
-    private String uploadedMedicalRecordUrl;
-    private ImageView recordPreview;
 
-    private final ActivityResultLauncher<Uri> takePictureLauncher = registerForActivityResult(
-            new ActivityResultContracts.TakePicture(),
-            success -> {
-                if (success) {
-                    recordPreview.setVisibility(View.VISIBLE);
-                    recordPreview.setImageURI(currentPhotoUri);
-                    // Reset previously uploaded URL if they retake
-                    uploadedMedicalRecordUrl = null;
-                }
-            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         if (savedInstanceState != null) {
-            String uriStr = savedInstanceState.getString("SAVED_PHOTO_URI");
-            if (uriStr != null) {
-                currentPhotoUri = Uri.parse(uriStr);
-            }
-            uploadedMedicalRecordUrl = savedInstanceState.getString("SAVED_UPLOAD_URL");
+            // No state to restore right now
         }
         
         EdgeToEdge.enable(this);
@@ -147,18 +130,6 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
         // Book Appointment
         findViewById(R.id.clinic_book_btn).setOnClickListener(v -> bookAppointment());
 
-        // Upload Record Button
-        recordPreview = findViewById(R.id.upload_record_preview);
-        findViewById(R.id.btn_upload_record).setOnClickListener(v -> {
-            try {
-                File imageFile = File.createTempFile("record_", ".jpg", getCacheDir());
-                currentPhotoUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", imageFile);
-                takePictureLauncher.launch(currentPhotoUri);
-            } catch (IOException e) {
-                UiUtils.showErrorDialog(this, "Error", "Could not create image file");
-            }
-        });
-
         // Open in Maps App
         findViewById(R.id.btn_open_maps).setOnClickListener(v -> {
             if (clinicLatitude != 0 && clinicLongitude != 0) {
@@ -198,12 +169,6 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (currentPhotoUri != null) {
-            outState.putString("SAVED_PHOTO_URI", currentPhotoUri.toString());
-        }
-        if (uploadedMedicalRecordUrl != null) {
-            outState.putString("SAVED_UPLOAD_URL", uploadedMedicalRecordUrl);
-        }
     }
 
     private void bookAppointment() {
@@ -250,32 +215,7 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void proceedWithBooking(String patientId, String patientName) {
-        if (currentPhotoUri != null && uploadedMedicalRecordUrl == null) {
-            // Needs to upload image first
-            ProgressDialog progress = new ProgressDialog(this);
-            progress.setMessage("Uploading medical record...");
-            progress.setCancelable(false);
-            progress.show();
-
-            try {
-                java.io.InputStream is = getContentResolver().openInputStream(currentPhotoUri);
-                java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
-                int nRead;
-                byte[] data = new byte[16384];
-                while ((nRead = is.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, nRead);
-                }
-                byte[] bytes = buffer.toByteArray();
-                is.close();
-
-                com.cloudinary.android.MediaManager.get().upload(bytes).option("folder", "Records").callback(new com.cloudinary.android.callback.UploadCallback() { @Override public void onStart(String requestId) {} @Override public void onProgress(String requestId, long bytes, long totalBytes) {} @Override public void onSuccess(String requestId, java.util.Map resultData) { uploadedMedicalRecordUrl = (String) resultData.get("secure_url"); progress.dismiss(); finalizeBooking(patientId, patientName); } @Override public void onError(String requestId, com.cloudinary.android.callback.ErrorInfo error) { progress.dismiss(); com.example.mediline.util.UiUtils.showErrorDialog(ClinicDetailsActivity.this, "Upload Failed", "Failed to upload medical record: " + error.getDescription()); } @Override public void onReschedule(String requestId, com.cloudinary.android.callback.ErrorInfo error) {} }).dispatch();
-            } catch (Exception ex) {
-                progress.dismiss();
-                UiUtils.showErrorDialog(this, "File Error", "Failed to read image file: " + ex.getMessage());
-            }
-        } else {
-            finalizeBooking(patientId, patientName);
-        }
+        finalizeBooking(patientId, patientName);
     }
 
     private void finalizeBooking(String patientId, String patientName) {
@@ -293,9 +233,6 @@ public class ClinicDetailsActivity extends AppCompatActivity implements OnMapRea
                     clinicId, nextToken, "WAITING", "APP",
                     patientId, patientName, "Consultation"
             );
-            if (uploadedMedicalRecordUrl != null) {
-                appointment.setPatientMedicalRecordUrl(uploadedMedicalRecordUrl);
-            }
 
             appointmentRepo.createAppointment(appointment, task -> {
                 if (task.isSuccessful()) {

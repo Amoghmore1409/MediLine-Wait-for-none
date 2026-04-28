@@ -14,11 +14,14 @@ public class Clinic {
     private String closingTime;
     private double consultationFee;
     private String specialization;
+    private int averageVisitTimeMinutes;
 
-    public Clinic() {}
+    public Clinic() {
+        this.averageVisitTimeMinutes = 15; // default fallback
+    }
 
     public Clinic(String doctorId, String name, String address, double latitude, double longitude,
-                  String openingTime, String closingTime, double consultationFee, String specialization) {
+                  String openingTime, String closingTime, double consultationFee, String specialization, int averageVisitTimeMinutes) {
         this.doctorId = doctorId;
         this.name = name;
         this.address = address;
@@ -28,6 +31,7 @@ public class Clinic {
         this.closingTime = closingTime;
         this.consultationFee = consultationFee;
         this.specialization = specialization;
+        this.averageVisitTimeMinutes = averageVisitTimeMinutes;
     }
 
     public String getClinicId() { return clinicId; }
@@ -50,4 +54,6 @@ public class Clinic {
     public void setConsultationFee(double consultationFee) { this.consultationFee = consultationFee; }
     public String getSpecialization() { return specialization; }
     public void setSpecialization(String specialization) { this.specialization = specialization; }
+    public int getAverageVisitTimeMinutes() { return averageVisitTimeMinutes; }
+    public void setAverageVisitTimeMinutes(int averageVisitTimeMinutes) { this.averageVisitTimeMinutes = averageVisitTimeMinutes; }
 }

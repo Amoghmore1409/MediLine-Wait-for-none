@@ -159,6 +159,8 @@
     <string name="clinic_setup_active">ACTIVE SCHEDULE</string>
     <string name="clinic_setup_save">Save Changes</string>
     <string name="clinic_setup_closed">Closed</string>
+    <string name="clinic_setup_avg_time_label">Avg. Visit Duration</string>
+    <string name="clinic_setup_avg_time_subtitle">Estimated minutes per patient</string>
 
     <!-- Bottom Navigation -->
     <string name="nav_home">Home</string>

@@ -23,6 +23,10 @@ public class UserRepository {
         db.collection("users").document(userId).get().addOnSuccessListener(listener);
     }
 
+    public void updateUserField(String userId, String field, Object value, OnCompleteListener<Void> listener) {
+        db.collection("users").document(userId).update(field, value).addOnCompleteListener(listener);
+    }
+
     public void createDoctorProfile(String doctorId, DoctorProfile profile, OnCompleteListener<Void> listener) {
         db.collection("doctorProfiles").document(doctorId).set(profile).addOnCompleteListener(listener);
     }
